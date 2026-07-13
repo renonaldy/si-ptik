@@ -1,0 +1,30 @@
+# ── Secrets / env ────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Frontend (Node / Vite) ───────────────────────────────────
+node_modules
+dist
+dist-ssr
+dev-dist
+*.local
+.vite
+coverage
+playwright-report
+test-results
+
+# ── Backend (Go) ─────────────────────────────────────────────
+/backend/bin/
+/backend/tmp/
+*.exe
+# uploaded files at runtime (keep the folder, not its contents)
+/backend/storage/uploads/*
+!/backend/storage/uploads/.gitkeep
+
+# ── Editor / OS ──────────────────────────────────────────────
+.DS_Store
+*.log
+.idea
+.vscode/*
+!.vscode/extensions.json

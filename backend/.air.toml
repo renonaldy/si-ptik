@@ -1,0 +1,14 @@
+root = "."
+tmp_dir = "/tmp/air"
+
+[build]
+  cmd = "go build -o /tmp/air/server ./cmd/server"
+  bin = "/tmp/air/server"
+  delay = 500
+  exclude_dir = ["testdata", "db", "bin", "tmp"]
+  include_ext = ["go"]
+  exclude_regex = ["_test\\.go$"]
+  kill_delay = "1s"
+
+[misc]
+  clean_on_exit = true

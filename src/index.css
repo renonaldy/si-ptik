@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 270 33% 98%;      /* cool lavender-white */
+    --foreground: 270 15% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 270 15% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 15% 11%;
+    --primary: 262 83% 58%;         /* violet */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 15% 95%;
+    --secondary-foreground: 270 15% 11%;
+    --muted: 270 15% 95%;
+    --muted-foreground: 270 6% 34%;
+    --accent: 262 45% 93%;
+    --accent-foreground: 262 45% 40%;
+    --destructive: 347 78% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 276 9% 89%;
+    --input: 276 9% 89%;
+    --ring: 262 83% 58%;
+    --radius: 0.625rem;
+    /* App sidebar — neutral near-black */
+    --sidebar-background: 240 14% 7%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 262 83% 63%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 10% 16%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 240 10% 13%;
+    --sidebar-ring: 262 83% 63%;
+    /* Per-domain accent hues (content-level color only) */
+    --m-dosen: 262 83% 58%;
+    --m-alumni: 221 83% 53%;
+    --m-penelitian: 173 75% 34%;
+    --m-skripsi: 231 74% 60%;
+    --m-skripsi-alumni: 199 89% 42%;
+    --m-sempro: 38 92% 45%;
+    --m-wisudawan: 152 60% 42%;
+    --m-administrasi: 215 28% 47%;
+    --m-sumbangan: 330 78% 52%;
+    --m-microsoft: 24 90% 50%;
+    --m-berita: 350 74% 55%;
+    --m-galeri: 280 65% 58%;
+    --m-download: 190 80% 38%;
+    --m-pendaftaran: 130 52% 42%;
+    --m-ujian: 245 75% 60%;
+    /* Charts + atmosphere */
+    --chart-grid: 270 15% 90%;
+    --chart-axis: 270 6% 45%;
+    --aurora-1: 262 83% 58%;
+    --aurora-2: 293 70% 60%;
+    --aurora-3: 224 76% 60%;
+    --hairline: 262 60% 70%;
+    --glow: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 270 15% 8%;
+    --foreground: 270 8% 95%;
+    --card: 270 12% 11%;
+    --card-foreground: 270 8% 95%;
+    --popover: 270 12% 11%;
+    --popover-foreground: 270 8% 95%;
+    --primary: 263 70% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 333 20% 18%;
+    --secondary-foreground: 333 20% 80%;
+    --muted: 270 10% 16%;
+    --muted-foreground: 270 6% 55%;
+    --accent: 263 25% 20%;
+    --accent-foreground: 263 45% 80%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 270 10% 18%;
+    --input: 270 10% 18%;
+    --ring: 263 70% 70%;
+    --sidebar-background: 270 15% 10%;
+    --sidebar-foreground: 270 8% 70%;
+    --sidebar-primary: 263 70% 70%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 15% 16%;
+    --sidebar-accent-foreground: 270 8% 80%;
+    --sidebar-border: 270 10% 16%;
+    --sidebar-ring: 263 70% 70%;
+    /* Per-domain accent hues (dark) */
+    --m-dosen: 258 90% 74%;
+    --m-alumni: 213 94% 70%;
+    --m-penelitian: 172 66% 50%;
+    --m-skripsi: 231 80% 74%;
+    --m-skripsi-alumni: 199 89% 62%;
+    --m-sempro: 45 96% 62%;
+    --m-wisudawan: 152 62% 58%;
+    --m-administrasi: 215 30% 66%;
+    --m-sumbangan: 330 88% 72%;
+    --m-microsoft: 27 96% 63%;
+    --m-berita: 350 85% 70%;
+    --m-galeri: 281 75% 74%;
+    --m-download: 190 80% 55%;
+    --m-pendaftaran: 140 55% 58%;
+    --m-ujian: 245 85% 76%;
+    /* Charts + atmosphere (dark) */
+    --chart-grid: 270 10% 22%;
+    --chart-axis: 270 6% 60%;
+    --aurora-1: 263 70% 62%;
+    --aurora-2: 293 60% 58%;
+    --aurora-3: 224 70% 60%;
+    --hairline: 263 55% 55%;
+    --glow: 263 70% 70%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4, h5, h6 { @apply font-semibold tracking-tight; }
+  ::selection { background: hsl(var(--primary) / 0.18); color: hsl(var(--primary)); }
+}
+
+@layer utilities {
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: hsl(var(--border)) transparent; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: hsl(var(--border)); border-radius: 999px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--muted-foreground) / 0.4); }
+  /* premium soft elevation for cards/surfaces */
+  .shadow-soft { box-shadow: 0 1px 2px -1px rgb(16 24 40 / 0.08), 0 2px 6px -1px rgb(16 24 40 / 0.06); }
+  .shadow-soft-lg { box-shadow: 0 4px 12px -2px rgb(16 24 40 / 0.10), 0 8px 28px -6px rgb(16 24 40 / 0.10); }
+  .fade-in { animation: fadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* App backdrop — kills the wide-screen void */
+  .bg-app-aurora {
+    background:
+      radial-gradient(60rem 60rem at 88% -12%, hsl(var(--aurora-1) / 0.10), transparent 60%),
+      radial-gradient(52rem 52rem at -12% 18%, hsl(var(--aurora-3) / 0.07), transparent 55%),
+      hsl(var(--background));
+  }
+  /* Gradient hairline border — top edge catches light */
+  .card-hairline { position: relative; }
+  .card-hairline::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: linear-gradient(180deg, hsl(var(--hairline) / 0.5), hsl(var(--border) / 0.12) 42%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  .shadow-glow-hover { transition: box-shadow 200ms ease, transform 200ms ease; }
+  .shadow-glow-hover:hover { box-shadow: 0 6px 16px -4px hsl(var(--glow) / 0.16), 0 12px 40px -8px hsl(var(--glow) / 0.20); }
+  /* Hero gradient band (dashboard) */
+  .bg-hero-aurora {
+    background:
+      radial-gradient(40rem 30rem at 100% 0%, hsl(var(--aurora-2) / 0.22), transparent 60%),
+      radial-gradient(40rem 30rem at 0% 100%, hsl(var(--aurora-3) / 0.18), transparent 55%),
+      linear-gradient(135deg, hsl(var(--aurora-1)) 0%, hsl(263 74% 48%) 55%, hsl(224 64% 42%) 100%);
+  }
+  /* Mesh for login brand panel */
+  .bg-mesh {
+    background:
+      radial-gradient(60% 60% at 15% 15%, hsl(var(--aurora-1) / 0.55), transparent 60%),
+      radial-gradient(55% 55% at 85% 25%, hsl(var(--aurora-2) / 0.40), transparent 60%),
+      radial-gradient(60% 60% at 78% 92%, hsl(var(--aurora-3) / 0.45), transparent 60%),
+      radial-gradient(50% 50% at 18% 88%, hsl(173 80% 40% / 0.30), transparent 60%),
+      hsl(var(--sidebar-background));
+  }
+  /* Fine grid overlay */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(0 0% 100% / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(0 0% 100% / 0.06) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .ring-hairline { box-shadow: inset 0 0 0 1px hsl(var(--border)); }
+
+  /* Motion */
+  @keyframes auroraDrift { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(4%, -3%) scale(1.12); } }
+  .animate-aurora { animation: auroraDrift 18s ease-in-out infinite; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .rise-in { animation: rise .5s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes drawIn { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+  .spark-draw { animation: drawIn 900ms cubic-bezier(.16, 1, .3, 1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-aurora, .rise-in, .spark-draw, .fade-in { animation: none !important; }
+  }
+}

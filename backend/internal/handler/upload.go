@@ -1,0 +1,85 @@
+package handler
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"ptik/pkg/apperror"
+	"ptik/pkg/response"
+
+	"github.com/google/uuid"
+)
+
+// UploadHandler stores a single uploaded file on local disk and returns its URL.
+type UploadHandler struct {
+	dir           string
+	publicBaseURL string
+}
+
+func NewUploadHandler(dir, publicBaseURL string) *UploadHandler {
+	_ = os.MkdirAll(dir, 0o755)
+	return &UploadHandler{dir: dir, publicBaseURL: publicBaseURL}
+}
+
+const maxUploadBytes = 10 << 20 // 10 MiB
+
+var allowedExt = map[string]bool{
+	".pdf": true, ".png": true, ".jpg": true, ".jpeg": true, ".webp": true,
+	".doc": true, ".docx": true, ".ppt": true, ".pptx": true,
+}
+
+type uploadResult struct {
+	URL      string `json:"url"`
+	Filename string `json:"filename"`
+}
+
+func (h *UploadHandler) Upload(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(maxUploadBytes); err != nil {
+		response.Error(w, apperror.New(apperror.CodeValidation, "file terlalu besar atau tidak valid (maks 10MB)"))
+		return
+	}
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		response.Error(w, apperror.New(apperror.CodeValidation, "field 'file' wajib ada"))
+		return
+	}
+	defer file.Close()
+
+	ext := strings.ToLower(filepath.Ext(header.Filename))
+	if !allowedExt[ext] {
+		response.Error(w, apperror.New(apperror.CodeValidation, "tipe file tidak diizinkan"))
+		return
+	}
+
+	name := uuid.NewString() + ext
+	dst, err := os.Create(filepath.Join(h.dir, name))
+	if err != nil {
+		response.Error(w, apperror.Internal("gagal menyimpan file", err))
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, io.LimitReader(file, maxUploadBytes)); err != nil {
+		response.Error(w, apperror.Internal("gagal menulis file", err))
+		return
+	}
+
+	base := h.publicBaseURL
+	if base == "" {
+		scheme := "http"
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+		base = fmt.Sprintf("%s://%s", scheme, r.Host)
+	}
+	base = strings.TrimRight(base, "/")
+
+	response.JSON(w, http.StatusCreated, uploadResult{
+		URL:      base + "/uploads/" + name,
+		Filename: header.Filename,
+	})
+}

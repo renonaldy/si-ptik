@@ -1,0 +1,129 @@
+import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom";
+
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { getStoredToken } from "@/features/auth/useAuth";
+import { useMe } from "@/features/auth/useMe";
+import { clearTokens } from "@/lib/api/client";
+import { applyTheme, loadTheme } from "@/lib/theme";
+
+// Public site
+import HomePage from "./pages/public/HomePage";
+import BeritaPublicPage from "./pages/public/BeritaPublicPage";
+import BeritaDetailPage from "./pages/public/BeritaDetailPage";
+import GaleriPublicPage from "./pages/public/GaleriPublicPage";
+import VisiMisiPage from "./pages/public/VisiMisiPage";
+import KewirausahaanPage from "./pages/public/KewirausahaanPage";
+import DownloadPublicPage from "./pages/public/DownloadPublicPage";
+import UjianDetailPage from "./pages/public/UjianDetailPage";
+import KontakPage from "./pages/public/KontakPage";
+import DaftarPage from "./pages/public/DaftarPage";
+import AkademikPage from "./pages/AkademikPage";
+
+import LoginPage from "./pages/LoginPage";
+
+// Internal app
+import DashboardPage from "./pages/DashboardPage";
+import DosenPage from "./pages/dosen/DosenPage";
+import AlumniPage from "./pages/alumni/AlumniPage";
+import AdministrasiPage from "./pages/administrasi/AdministrasiPage";
+import PenelitianPage from "./pages/penelitian/PenelitianPage";
+import SkripsiPage from "./pages/skripsi/SkripsiPage";
+import SkripsiAlumniPage from "./pages/skripsi-alumni/SkripsiAlumniPage";
+import SemproPage from "./pages/sempro/SemproPage";
+import WisudawanPage from "./pages/wisudawan/WisudawanPage";
+import SumbanganPage from "./pages/sumbangan/SumbanganPage";
+import MicrosoftPage from "./pages/microsoft/MicrosoftPage";
+// Admin content modules
+import BeritaPage from "./pages/berita/BeritaPage";
+import GaleriPage from "./pages/galeri/GaleriPage";
+import DownloadPage from "./pages/download/DownloadPage";
+import PendaftaranPage from "./pages/pendaftaran/PendaftaranPage";
+import PengaturanSitusPage from "./pages/pengaturan/PengaturanSitusPage";
+import UjianPage from "./pages/ujian/UjianPage";
+import NotFound from "./pages/NotFound";
+
+// Route guard (layout route via <Outlet/>)
+function RequireAuth() {
+  if (!getStoredToken()) return <Navigate to="/login" replace />;
+  return <AuthGuard />;
+}
+
+function AuthGuard() {
+  const { isLoading, isError, data } = useMe();
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+  if (isError || data === null) {
+    clearTokens();
+    return <Navigate to="/login" replace />;
+  }
+  return <Outlet />;
+}
+
+const queryClient = new QueryClient();
+
+const App = () => {
+  useEffect(() => {
+    applyTheme(loadTheme());
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Sonner />
+        <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+          <ErrorBoundary>
+            <Routes>
+              {/* Public website */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/berita" element={<BeritaPublicPage />} />
+              <Route path="/berita/:id" element={<BeritaDetailPage />} />
+              <Route path="/galeri" element={<GaleriPublicPage />} />
+              <Route path="/visi-misi" element={<VisiMisiPage />} />
+              <Route path="/akademik" element={<AkademikPage />} />
+              <Route path="/akademik/ujian/:id" element={<UjianDetailPage />} />
+              <Route path="/kewirausahaan" element={<KewirausahaanPage />} />
+              <Route path="/download" element={<DownloadPublicPage />} />
+              <Route path="/kontak" element={<KontakPage />} />
+              <Route path="/daftar" element={<DaftarPage />} />
+              <Route path="/login" element={<LoginPage />} />
+
+              {/* Internal app — requires auth */}
+              <Route element={<RequireAuth />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/dosen" element={<DosenPage />} />
+                <Route path="/alumni" element={<AlumniPage />} />
+                <Route path="/administrasi" element={<AdministrasiPage />} />
+                <Route path="/penelitian" element={<PenelitianPage />} />
+                <Route path="/skripsi" element={<SkripsiPage />} />
+                <Route path="/skripsi-alumni" element={<SkripsiAlumniPage />} />
+                <Route path="/sempro" element={<SemproPage />} />
+                <Route path="/wisudawan" element={<WisudawanPage />} />
+                <Route path="/sumbangan" element={<SumbanganPage />} />
+                <Route path="/microsoft" element={<MicrosoftPage />} />
+                <Route path="/kelola/ujian" element={<UjianPage />} />
+                <Route path="/kelola/berita" element={<BeritaPage />} />
+                <Route path="/kelola/galeri" element={<GaleriPage />} />
+                <Route path="/kelola/download" element={<DownloadPage />} />
+                <Route path="/kelola/pendaftaran" element={<PendaftaranPage />} />
+                <Route path="/kelola/pengaturan" element={<PengaturanSitusPage />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
+
+export default App;
