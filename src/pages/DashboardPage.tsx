@@ -72,8 +72,18 @@ const MODULES: ModuleDef[] = [
   { key: "pendaftaran", label: "Pendaftaran", short: "Daftar", icon: Inbox, path: "/kelola/pendaftaran", list: () => listPendaftaran() },
 ];
 
-// Modules shown in the vertical bar chart + progress list (academic focus).
+// Modules shown in the progress list (academic focus).
 const CHART_KEYS: ModuleKey[] = ["dosen", "alumni", "skripsi", "sempro", "wisudawan", "penelitian", "administrasi", "sumbangan"];
+
+// Maps an ISO date to an academic semester bucket (Jul–Dec = Ganjil, Jan–Jun = Genap).
+function semesterBucket(dateStr?: string): { key: string; sem: string; year: number; sort: number } | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  const year = d.getFullYear();
+  const ganjil = d.getMonth() + 1 >= 7;
+  return { key: `${year}-${ganjil ? 1 : 0}`, sem: ganjil ? "Ganjil" : "Genap", year, sort: year * 2 + (ganjil ? 1 : 0) };
+}
 // Featured colorful cards (like the reference "Your courses" row).
 const FEATURED: ModuleKey[] = ["dosen", "alumni", "skripsi", "wisudawan"];
 
@@ -94,6 +104,32 @@ export default function DashboardPage() {
   const total = MODULES.reduce((a, m) => a + countOf(m.key), 0);
   const chartMax = Math.max(1, ...CHART_KEYS.map((k) => countOf(k)));
   const anyLoading = results.some((r) => r.isLoading);
+
+  // Per-semester statistics for Sempro, Wisudawan & Kompre.
+  // Sempro/Kompre come from ujian (jenis + exam date); Wisudawan from tanggal_sidang.
+  type SemBucket = { sort: number; sem: string; year: number; sempro: number; kompre: number; wisudawan: number };
+  const semMap = new Map<string, SemBucket>();
+  const addSem = (dateStr: string | undefined, key: "sempro" | "kompre" | "wisudawan") => {
+    const b = semesterBucket(dateStr);
+    if (!b) return;
+    const e = semMap.get(b.key) ?? { sort: b.sort, sem: b.sem, year: b.year, sempro: 0, kompre: 0, wisudawan: 0 };
+    e[key] += 1;
+    semMap.set(b.key, e);
+  };
+  for (const u of ujian) {
+    if (u.jenis === "sempro") addSem(u.tanggal, "sempro");
+    else if (u.jenis === "kompre") addSem(u.tanggal, "kompre");
+  }
+  const wisudawanRecs = (results[byKey("wisudawan")]?.data as Array<{ tanggal_sidang?: string }> | undefined) ?? [];
+  for (const w of wisudawanRecs) addSem(w.tanggal_sidang, "wisudawan");
+
+  const semData = [...semMap.values()].sort((a, b) => a.sort - b.sort).slice(-6);
+  const semMax = Math.max(1, ...semData.flatMap((s) => [s.sempro, s.kompre, s.wisudawan]));
+  const SEM_SERIES: { key: "sempro" | "wisudawan" | "kompre"; label: string; color: string }[] = [
+    { key: "sempro", label: "Sempro", color: "var(--m-sempro)" },
+    { key: "wisudawan", label: "Wisudawan", color: "var(--m-wisudawan)" },
+    { key: "kompre", label: "Kompre", color: "var(--m-ujian)" },
+  ];
 
   const upcoming = ujian
     .map((u) => ({ ...u, eff: effectiveStatus(u) }))
@@ -161,29 +197,48 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Bar chart */}
+            {/* Per-semester bar chart (Sempro / Wisudawan / Kompre) */}
             <section className="card-hairline rounded-2xl border border-border bg-card p-5 shadow-soft">
-              <h2 className="mb-4 font-display text-base font-medium tracking-[-0.01em] text-foreground">Statistik Data</h2>
-              <div className="flex h-44 items-end gap-2">
-                {CHART_KEYS.map((k) => {
-                  const m = mod(k);
-                  const c = countOf(k);
-                  const h = (c / chartMax) * 100;
-                  return (
-                    <div key={k} className="flex min-w-0 flex-1 flex-col items-center gap-2" style={accentStyle(k)}>
-                      <span className="font-display text-[11px] tabular-nums text-muted-foreground">{c}</span>
-                      <div className="flex w-full flex-1 items-end">
-                        <div
-                          className="w-full rounded-t-md transition-[height] duration-700"
-                          style={{ height: `${anyLoading ? 0 : Math.max(h, 4)}%`, background: "hsl(var(--ma))" }}
-                          title={`${m.label}: ${c}`}
-                        />
-                      </div>
-                      <span className="w-full truncate text-center text-[10px] text-muted-foreground">{m.short}</span>
-                    </div>
-                  );
-                })}
+              <h2 className="font-display text-base font-medium tracking-[-0.01em] text-foreground">Statistik per Semester</h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">Sempro, Wisudawan &amp; Kompre tiap semester.</p>
+              <div className="mb-3 mt-3 flex flex-wrap gap-3">
+                {SEM_SERIES.map((s) => (
+                  <span key={s.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="h-2.5 w-2.5 rounded-sm" style={{ background: `hsl(${s.color})` }} /> {s.label}
+                  </span>
+                ))}
               </div>
+              {semData.length === 0 ? (
+                <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
+                  {anyLoading ? "Memuat…" : "Belum ada data."}
+                </div>
+              ) : (
+                <div className="flex h-40 items-end gap-3">
+                  {semData.map((s) => (
+                    <div key={`${s.year}-${s.sem}`} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+                      <div className="flex w-full flex-1 items-end justify-center gap-1">
+                        {SEM_SERIES.map((ser) => {
+                          const c = s[ser.key];
+                          const h = (c / semMax) * 100;
+                          return (
+                            <div
+                              key={ser.key}
+                              className="w-2.5 rounded-t transition-[height] duration-700"
+                              style={{ height: `${anyLoading ? 0 : Math.max(h, 3)}%`, background: `hsl(${ser.color})` }}
+                              title={`${ser.label} · ${s.sem} ${s.year}: ${c}`}
+                            />
+                          );
+                        })}
+                      </div>
+                      <span className="w-full text-center text-[10px] leading-tight text-muted-foreground">
+                        {s.sem}
+                        <br />
+                        {s.year}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
 

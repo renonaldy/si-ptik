@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ChatbotWidget } from "@/components/chat/ChatbotWidget";
 import { getStoredToken } from "@/features/auth/useAuth";
 import { useMe } from "@/features/auth/useMe";
 import { clearTokens } from "@/lib/api/client";
@@ -12,6 +13,9 @@ import { applyTheme, loadTheme } from "@/lib/theme";
 
 // Public site
 import HomePage from "./pages/public/HomePage";
+import ProfilPage from "./pages/public/ProfilPage";
+import TopicPage from "./pages/public/TopicPage";
+import { TENTANG_TOPICS, AKADEMIK_TOPICS } from "./pages/public/topicSections";
 import BeritaPublicPage from "./pages/public/BeritaPublicPage";
 import BeritaDetailPage from "./pages/public/BeritaDetailPage";
 import GaleriPublicPage from "./pages/public/GaleriPublicPage";
@@ -21,6 +25,7 @@ import DownloadPublicPage from "./pages/public/DownloadPublicPage";
 import UjianDetailPage from "./pages/public/UjianDetailPage";
 import KontakPage from "./pages/public/KontakPage";
 import DaftarPage from "./pages/public/DaftarPage";
+import KegiatanUjianPage from "./pages/public/KegiatanUjianPage";
 import AkademikPage from "./pages/AkademikPage";
 
 import LoginPage from "./pages/LoginPage";
@@ -42,13 +47,15 @@ import BeritaPage from "./pages/berita/BeritaPage";
 import GaleriPage from "./pages/galeri/GaleriPage";
 import DownloadPage from "./pages/download/DownloadPage";
 import PendaftaranPage from "./pages/pendaftaran/PendaftaranPage";
+import KurikulumPage from "./pages/kurikulum/KurikulumPage";
+import KontenBerandaPage from "./pages/beranda/KontenBerandaPage";
 import PengaturanSitusPage from "./pages/pengaturan/PengaturanSitusPage";
 import UjianPage from "./pages/ujian/UjianPage";
 import NotFound from "./pages/NotFound";
 
 // Route guard (layout route via <Outlet/>)
 function RequireAuth() {
-  if (!getStoredToken()) return <Navigate to="/login" replace />;
+  if (!getStoredToken()) return <Navigate to="/admin/ptik/login" replace />;
   return <AuthGuard />;
 }
 
@@ -63,7 +70,7 @@ function AuthGuard() {
   }
   if (isError || data === null) {
     clearTokens();
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin/ptik/login" replace />;
   }
   return <Outlet />;
 }
@@ -84,17 +91,22 @@ const App = () => {
             <Routes>
               {/* Public website */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/profil" element={<ProfilPage />} />
+              <Route path="/tentang/:topic" element={<TopicPage topics={TENTANG_TOPICS} basePath="/tentang" />} />
+              <Route path="/akademik/:topic" element={<TopicPage topics={AKADEMIK_TOPICS} basePath="/akademik" />} />
               <Route path="/berita" element={<BeritaPublicPage />} />
               <Route path="/berita/:id" element={<BeritaDetailPage />} />
               <Route path="/galeri" element={<GaleriPublicPage />} />
               <Route path="/visi-misi" element={<VisiMisiPage />} />
               <Route path="/akademik" element={<AkademikPage />} />
+              <Route path="/akademik/ujian" element={<KegiatanUjianPage />} />
               <Route path="/akademik/ujian/:id" element={<UjianDetailPage />} />
               <Route path="/kewirausahaan" element={<KewirausahaanPage />} />
               <Route path="/download" element={<DownloadPublicPage />} />
               <Route path="/kontak" element={<KontakPage />} />
               <Route path="/daftar" element={<DaftarPage />} />
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/admin/ptik/login" element={<LoginPage />} />
+              <Route path="/login" element={<Navigate to="/admin/ptik/login" replace />} />
 
               {/* Internal app — requires auth */}
               <Route element={<RequireAuth />}>
@@ -114,11 +126,14 @@ const App = () => {
                 <Route path="/kelola/galeri" element={<GaleriPage />} />
                 <Route path="/kelola/download" element={<DownloadPage />} />
                 <Route path="/kelola/pendaftaran" element={<PendaftaranPage />} />
+                <Route path="/kelola/kurikulum" element={<KurikulumPage />} />
+                <Route path="/kelola/beranda" element={<KontenBerandaPage />} />
                 <Route path="/kelola/pengaturan" element={<PengaturanSitusPage />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <ChatbotWidget />
           </ErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>

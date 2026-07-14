@@ -192,7 +192,34 @@
   .rise-in { animation: rise .5s cubic-bezier(.16, 1, .3, 1) both; }
   @keyframes drawIn { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
   .spark-draw { animation: drawIn 900ms cubic-bezier(.16, 1, .3, 1) both; }
+
+  /* Template-parity surfaces (AI-starter-kit look) */
+  .feature-glow {
+    background-image: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.55) 100%);
+    box-shadow: 0 12px 24px -14px hsl(var(--primary) / 0.45);
+  }
+  .benefits-bg { background: linear-gradient(216deg, #a2e4e4 0%, #1c9ef6 100%); }
+  /* Hero surface — light lavender gradient (light) / deep navy (dark), like the template */
+  .hero-surface { background: linear-gradient(180deg, #f8fcff 0%, #f1efff 50%, #f8dcff 100%); }
+  .dark .hero-surface { background: #171f2e; }
+  .button-bg { background-image: linear-gradient(97deg, #725cff 0%, #b5b1ff 140.21%); }
+  /* Bottom fade for the collapsed testimonial grid */
+  .fade-to-bg {
+    background: linear-gradient(180deg, hsl(var(--background) / 0) 0%, hsl(var(--background)) 92%);
+  }
+
+  /* Gentle floating for hero chips (mirrors the AI-starter-kit float set) */
+  @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes floatX { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+  @keyframes floatXY { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
+  @keyframes floatRev { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  .float-y { animation: floatY 3s ease-in-out infinite; }
+  .float-x { animation: floatX 4s ease-in-out infinite; }
+  .float-xy { animation: floatXY 5s ease-in-out infinite; }
+  .float-rev { animation: floatRev 6s ease-in-out infinite; }
+
   @media (prefers-reduced-motion: reduce) {
-    .animate-aurora, .rise-in, .spark-draw, .fade-in { animation: none !important; }
+    .animate-aurora, .rise-in, .spark-draw, .fade-in,
+    .float-y, .float-x, .float-xy, .float-rev { animation: none !important; }
   }
 }

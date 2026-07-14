@@ -173,6 +173,7 @@ func main() {
 			r.Get("/berita", beritaHandler.List)
 			r.Get("/berita/{id}", beritaHandler.Get)
 			r.Get("/galeri", galeriHandler.List)
+			r.Get("/dosen", dosenHandler.PublicList)
 			r.Get("/download", downloadHandler.List)
 			r.Get("/content", contentHandler.List)
 			r.Get("/ujian", ujianHandler.List)

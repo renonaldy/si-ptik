@@ -5,8 +5,20 @@ import type { Download } from "./downloadApi";
 import type { SiteContent } from "./contentApi";
 import type { Ujian } from "./ujianApi";
 
+// Public (no-auth) view of a lecturer — sensitive fields (NIK/HP/sertifikasi) omitted by the API.
+export interface DosenPublic {
+  id: string;
+  nama_dosen: string;
+  nidn: string;
+  jabatan: string;
+  pangkat: string;
+  status: string;
+  foto: string;
+}
+
 // Public (no-auth) reads from /public/* and inbound submissions.
 export const listBeritaPublic = () => api.get<Berita[]>("/public/berita");
+export const listDosenPublic = () => api.get<DosenPublic[]>("/public/dosen");
 export const getBeritaPublic = (id: string) => api.get<Berita>(`/public/berita/${encodeURIComponent(id)}`);
 export const listGaleriPublic = () => api.get<Galeri[]>("/public/galeri");
 export const listDownloadPublic = () => api.get<Download[]>("/public/download");
