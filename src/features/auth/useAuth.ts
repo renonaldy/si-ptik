@@ -13,7 +13,7 @@ export async function logout() {
     // ignore network errors on logout
   }
   clearTokens();
-  window.location.href = "/login";
+  window.location.href = "/admin/ptik/login";
 }
 
 // useLogin runs the credential exchange and persists the returned token pair.

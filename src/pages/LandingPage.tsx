@@ -24,7 +24,7 @@ function PublicNav() {
           <Link to="/akademik">Akademik</Link>
         </Button>
         <Button asChild>
-          <Link to="/login">Masuk</Link>
+          <Link to="/admin/ptik/login">Masuk</Link>
         </Button>
       </nav>
     </header>
@@ -52,7 +52,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
             <Button size="lg" asChild>
-              <Link to="/login">
+              <Link to="/admin/ptik/login">
                 Masuk ke Sistem <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </Button>

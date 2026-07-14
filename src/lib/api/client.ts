@@ -72,7 +72,7 @@ const REQUEST_TIMEOUT_MS = 30_000;
 
 function forceLogout() {
   clearTokens();
-  window.location.href = "/login";
+  window.location.href = "/admin/ptik/login";
 }
 
 async function request<T>(path: string, init?: RequestInit, allowRetry = true): Promise<T> {

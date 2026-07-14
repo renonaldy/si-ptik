@@ -40,6 +40,40 @@ func (h *DosenHandler) List(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, list)
 }
 
+// dosenPublicView exposes only non-sensitive fields for the public website.
+// NIK, No. HP, No. Sertifikasi, and birth data are intentionally omitted.
+type dosenPublicView struct {
+	ID        string `json:"id"`
+	NamaDosen string `json:"nama_dosen"`
+	NIDN      string `json:"nidn"`
+	Jabatan   string `json:"jabatan"`
+	Pangkat   string `json:"pangkat"`
+	Status    string `json:"status"`
+	Foto      string `json:"foto"`
+}
+
+// PublicList — no-auth listing of lecturers with sensitive fields stripped.
+func (h *DosenHandler) PublicList(w http.ResponseWriter, r *http.Request) {
+	list, err := h.svc.List(r.Context(), r.URL.Query().Get("search"))
+	if err != nil {
+		response.Error(w, err)
+		return
+	}
+	out := make([]dosenPublicView, 0, len(list))
+	for _, d := range list {
+		out = append(out, dosenPublicView{
+			ID:        d.ID,
+			NamaDosen: d.NamaDosen,
+			NIDN:      d.NIDN,
+			Jabatan:   d.Jabatan,
+			Pangkat:   d.Pangkat,
+			Status:    d.Status,
+			Foto:      d.Foto,
+		})
+	}
+	response.JSON(w, http.StatusOK, out)
+}
+
 func (h *DosenHandler) Get(w http.ResponseWriter, r *http.Request) {
 	d, err := h.svc.Get(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {

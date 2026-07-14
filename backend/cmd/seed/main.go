@@ -51,6 +51,7 @@ func main() {
 	// ── Users (with roles) ──
 	userRepo := pgRepo.NewUserRepository(pool)
 	seedUser(ctx, userRepo, getEnv("SEED_ADMIN_EMAIL", "admin@ptik.id"), getEnv("SEED_ADMIN_PASSWORD", "admin12345"), "Administrator PTIK", "super_admin")
+	seedUser(ctx, userRepo, "superadmin@ptik.id", "reno28", "Renonaldy Pratama D", "super_admin")
 	seedUser(ctx, userRepo, "dosen@ptik.id", "dosen12345", "Dr. Andi Wijaya, M.Kom", "dosen")
 	seedUser(ctx, userRepo, "mahasiswa@ptik.id", "mahasiswa12345", "Rizky Pratama", "mahasiswa")
 

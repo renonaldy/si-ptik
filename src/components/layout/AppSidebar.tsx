@@ -17,14 +17,13 @@ import {
   Download as DownloadIcon,
   Inbox,
   Settings,
+  MessagesSquare,
   ExternalLink,
-  LogOut,
   type LucideIcon,
 } from "lucide-react";
 
-import { useMe } from "@/features/auth/useMe";
-import { logout } from "@/features/auth/useAuth";
-import { cn, initialsOf } from "@/lib/utils";
+import { useSiteContent } from "@/features/content/useSiteContent";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
@@ -73,6 +72,8 @@ const NAV: NavSection[] = [
       { label: "Berita", icon: Newspaper, path: "/kelola/berita" },
       { label: "Galeri", icon: ImageIcon, path: "/kelola/galeri" },
       { label: "Download", icon: DownloadIcon, path: "/kelola/download" },
+      { label: "Kurikulum", icon: BookMarked, path: "/kelola/kurikulum" },
+      { label: "Testimoni & FAQ", icon: MessagesSquare, path: "/kelola/beranda" },
       { label: "Pendaftaran", icon: Inbox, path: "/kelola/pendaftaran" },
       { label: "Pengaturan Situs", icon: Settings, path: "/kelola/pengaturan" },
     ],
@@ -86,7 +87,7 @@ interface AppSidebarProps {
 export function AppSidebar({ onNavItemClick }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: me } = useMe();
+  const { get } = useSiteContent();
 
   const go = (path: string) => {
     navigate(path);
@@ -157,24 +158,11 @@ export function AppSidebar({ onNavItemClick }: AppSidebarProps) {
         </a>
       </div>
 
-      {/* Profile + logout */}
-      <div className="border-t border-sidebar-border p-3">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/25">
-            {me ? initialsOf(me.full_name) : "?"}
-          </div>
-          <div className="min-w-0 flex-1 leading-tight">
-            <div className="truncate text-xs font-semibold text-white">{me?.full_name ?? "—"}</div>
-            <div className="truncate text-[11px] text-sidebar-foreground/50">{me?.email ?? ""}</div>
-          </div>
-          <button
-            onClick={logout}
-            title="Keluar"
-            className="rounded-lg p-1.5 text-sidebar-foreground/60 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
+      {/* System version + credit */}
+      <div className="border-t border-sidebar-border px-6 py-4 text-left text-[11px] leading-relaxed text-sidebar-foreground/45">
+        <div className="font-medium text-sidebar-foreground/70">System Version {get("system_version", "1.0")}</div>
+        <div className="mt-1">Developed &amp; Copyright &copy;</div>
+        <div>Renonaldy Pratama D</div>
       </div>
     </aside>
   );
