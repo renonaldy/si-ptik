@@ -14,6 +14,7 @@ import (
 
 type MicrosoftService interface {
 	List(ctx context.Context, search string) ([]microsoft.Microsoft, error)
+	ListPublic(ctx context.Context) ([]microsoft.PublicView, error)
 	Get(ctx context.Context, id string) (*microsoft.Microsoft, error)
 	Create(ctx context.Context, in microsoft.Input) (*microsoft.Microsoft, error)
 	Update(ctx context.Context, id string, in microsoft.Input) (*microsoft.Microsoft, error)
@@ -72,6 +73,18 @@ func (h *MicrosoftHandler) Create(w http.ResponseWriter, r *http.Request) {
 // "Pelatihan Microsoft" form. New rows default to status "pending".
 func (h *MicrosoftHandler) PublicCreate(w http.ResponseWriter, r *http.Request) {
 	h.Create(w, r)
+}
+
+// PublicList is the no-auth listing shown on the public training page. It returns
+// the privacy-safe projection (name, training type, status) — never NPM or the
+// payment proof.
+func (h *MicrosoftHandler) PublicList(w http.ResponseWriter, r *http.Request) {
+	list, err := h.svc.ListPublic(r.Context())
+	if err != nil {
+		response.Error(w, err)
+		return
+	}
+	response.JSON(w, http.StatusOK, list)
 }
 
 func (h *MicrosoftHandler) Update(w http.ResponseWriter, r *http.Request) {

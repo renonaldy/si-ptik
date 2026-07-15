@@ -56,7 +56,7 @@ export function AppSidebar({ onNavItemClick }: AppSidebarProps) {
         <BrandLogo className="h-10 w-10" />
         <div className="leading-tight">
           <div className="text-sm font-bold text-white">SI PTIK</div>
-          <div className="text-[11px] text-sidebar-foreground/60">Program Studi</div>
+          <div className="text-[11px] text-sidebar-foreground/60">Pendidikan Teknik Informatika dan Komputer</div>
         </div>
       </div>
 

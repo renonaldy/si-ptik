@@ -70,7 +70,7 @@ function Brand() {
       <BrandLogo className="h-10 w-10" />
       <div className="leading-tight">
         <div className="text-sm font-bold text-foreground">SI PTIK</div>
-        <div className="text-[11px] text-muted-foreground">Program Studi</div>
+        <div className="max-w-[13rem] text-[11px] leading-tight text-muted-foreground">Pendidikan Teknik Informatika dan Komputer</div>
       </div>
     </Link>
   );
@@ -236,7 +236,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-app-aurora">
       {/* ── Header ── */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 py-2 backdrop-blur lg:py-3">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 items-center gap-4 px-4 md:px-6 lg:grid-cols-[1fr_auto_1fr]">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 items-center gap-4 px-4 md:px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
           <div className="flex items-center">
             <Brand />
           </div>
@@ -350,7 +350,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                 <BrandLogo className="h-10 w-10" />
                 <div className="leading-tight">
                   <div className="text-sm font-bold text-white">SI PTIK</div>
-                  <div className="text-[11px] text-gray-500">Program Studi</div>
+                  <div className="text-[11px] text-gray-500">Pendidikan Teknik Informatika dan Komputer</div>
                 </div>
               </Link>
               <p className="mt-5 max-w-sm text-sm leading-relaxed text-gray-400">

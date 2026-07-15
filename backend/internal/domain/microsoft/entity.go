@@ -29,3 +29,15 @@ type Input struct {
 	JenisPelatihan  string `json:"jenis_pelatihan"`
 	BuktiPembayaran string `json:"bukti_pembayaran"`
 }
+
+// PublicView is the privacy-safe projection shown on the public training page. The
+// NPM is masked (see maskNPM) and bukti_pembayaran (payment proof) is omitted so no
+// sensitive data leaks through the no-auth endpoint.
+type PublicView struct {
+	ID             string    `json:"id"`
+	Nama           string    `json:"nama"`
+	NPM            string    `json:"npm"` // masked, e.g. "2021****23"
+	JenisPelatihan string    `json:"jenis_pelatihan"`
+	Status         string    `json:"status"`
+	CreatedAt      time.Time `json:"created_at"`
+}

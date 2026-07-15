@@ -22,6 +22,7 @@ import (
 	"ptik/internal/domain/galeri"
 	"ptik/internal/domain/menuaccess"
 	"ptik/internal/domain/microsoft"
+	"ptik/internal/domain/obe"
 	"ptik/internal/domain/pendaftaran"
 	"ptik/internal/domain/penelitian"
 	"ptik/internal/domain/sempro"
@@ -100,6 +101,7 @@ func main() {
 	contentRepo := pgRepo.NewContentRepository(pool)
 	ujianRepo := pgRepo.NewUjianRepository(pool)
 	menuAccessRepo := pgRepo.NewMenuAccessRepository(pool)
+	obeRepo := pgRepo.NewOBERepository(pool)
 
 	// ── Services ──
 	userSvc := user.NewService(userRepo)
@@ -121,6 +123,7 @@ func main() {
 	pendaftaranSvc := pendaftaran.NewService(pendaftaranRepo)
 	contentSvc := content.NewService(contentRepo)
 	menuAccessSvc := menuaccess.NewService(menuAccessRepo, userRepo)
+	obeSvc := obe.NewService(obeRepo)
 
 	// ── Handlers ──
 	authHandler := handler.NewAuthHandler(authSvc)
@@ -142,6 +145,7 @@ func main() {
 	contentHandler := handler.NewContentHandler(contentSvc)
 	ujianHandler := handler.NewUjianHandler(ujianSvc)
 	menuAccessHandler := handler.NewMenuAccessHandler(menuAccessSvc)
+	obeHandler := handler.NewOBEHandler(obeSvc)
 	uploadHandler := handler.NewUploadHandler(cfg.UploadDir, cfg.PublicBaseURL)
 
 	// ── Router ──
@@ -183,7 +187,9 @@ func main() {
 			r.Get("/ujian", ujianHandler.List)
 			r.Get("/ujian/{id}", ujianHandler.Get)
 			r.Post("/pendaftaran", pendaftaranHandler.Create)          // Daftar / Kontak forms
+			r.Get("/pelatihan-microsoft", microsoftHandler.PublicList)    // public list of registrants
 			r.Post("/pelatihan-microsoft", microsoftHandler.PublicCreate) // public training registration
+			r.Get("/obe", obeHandler.PublicData)                       // active OBE curriculum (full tree)
 			r.Post("/upload", uploadHandler.Upload)                    // public upload (e.g. bukti pembayaran)
 		})
 
@@ -222,6 +228,7 @@ func main() {
 			r.Route("/content", contentHandler.Routes)
 			r.Route("/ujian", ujianHandler.Routes)
 			r.Route("/menu-access", menuAccessHandler.Routes)
+			r.Route("/obe", obeHandler.Routes)
 		})
 	})
 

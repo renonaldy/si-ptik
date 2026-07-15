@@ -18,6 +18,45 @@ func (s *Service) List(ctx context.Context, search string) ([]Microsoft, error) 
 	return s.repo.List(ctx, strings.TrimSpace(search))
 }
 
+// ListPublic returns the privacy-safe projection for the public training page —
+// name, training type and status only (no NPM, no payment proof).
+func (s *Service) ListPublic(ctx context.Context) ([]PublicView, error) {
+	list, err := s.repo.List(ctx, "")
+	if err != nil {
+		return nil, fmt.Errorf("microsoft.Service.ListPublic: %w", err)
+	}
+	out := make([]PublicView, 0, len(list))
+	for _, x := range list {
+		out = append(out, PublicView{
+			ID:             x.ID,
+			Nama:           x.Nama,
+			NPM:            maskNPM(x.NPM),
+			JenisPelatihan: x.JenisPelatihan,
+			Status:         x.Status,
+			CreatedAt:      x.CreatedAt,
+		})
+	}
+	return out, nil
+}
+
+// maskNPM hides the middle digits of an NPM for the public listing, keeping the
+// first 4 and last 2 (e.g. "2021010023" -> "2021****23"). Shorter values are
+// masked more conservatively so a full NPM is never exposed.
+func maskNPM(npm string) string {
+	r := []rune(strings.TrimSpace(npm))
+	n := len(r)
+	switch {
+	case n == 0:
+		return ""
+	case n <= 3:
+		return strings.Repeat("*", n)
+	case n <= 6:
+		return string(r[0]) + strings.Repeat("*", n-1)
+	default:
+		return string(r[:4]) + strings.Repeat("*", n-6) + string(r[n-2:])
+	}
+}
+
 func (s *Service) Get(ctx context.Context, id string) (*Microsoft, error) {
 	x, err := s.repo.GetByID(ctx, id)
 	if err != nil {

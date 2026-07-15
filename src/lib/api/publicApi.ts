@@ -47,3 +47,17 @@ export interface PelatihanMicrosoftInput {
 
 export const submitPelatihanMicrosoft = (input: PelatihanMicrosoftInput) =>
   api.post<unknown>("/public/pelatihan-microsoft", input);
+
+// Privacy-safe public view of a registrant: NPM is masked (e.g. "2021****23") and
+// the payment proof is not exposed.
+export interface PelatihanMicrosoftPublic {
+  id: string;
+  nama: string;
+  npm: string; // masked by the backend
+  jenis_pelatihan: string;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+}
+
+export const listPelatihanMicrosoftPublic = () =>
+  api.get<PelatihanMicrosoftPublic[]>("/public/pelatihan-microsoft");
