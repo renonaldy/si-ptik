@@ -60,7 +60,7 @@ export default function PenggunaPage() {
   const handleSubmit = (value: UserFormValue) => {
     if (editing) {
       updateMut.mutate(
-        { id: editing.id, input: { full_name: value.full_name, role: value.role } },
+        { id: editing.id, input: { email: value.email, full_name: value.full_name, role: value.role } },
         { onSuccess: () => setFormOpen(false) },
       );
     } else {
@@ -110,7 +110,7 @@ export default function PenggunaPage() {
 
       <div className="card-hairline overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
         <div className="flex flex-col gap-3 border-b border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <SearchBar value={search} onChange={setSearch} placeholder="Cari nama atau email…" />
+          <SearchBar value={search} onChange={setSearch} placeholder="Cari nama, email, atau NPM…" />
           <span className="shrink-0 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
             {rows.length} akun
           </span>

@@ -79,12 +79,12 @@ func (r *UserRepository) Create(ctx context.Context, u *user.User) error {
 	return nil
 }
 
-func (r *UserRepository) Update(ctx context.Context, id, fullName, role string) (*user.User, error) {
+func (r *UserRepository) Update(ctx context.Context, id, email, fullName, role string) (*user.User, error) {
 	var u user.User
 	err := r.pool.QueryRow(ctx, `
-		UPDATE users SET full_name = $2, role = $3 WHERE id = $1
+		UPDATE users SET email = $2, full_name = $3, role = $4 WHERE id = $1
 		RETURNING `+userColumns,
-		id, fullName, role,
+		id, email, fullName, role,
 	).Scan(&u.ID, &u.Email, &u.PasswordHash, &u.FullName, &u.Role, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("UserRepository.Update: %w", err)

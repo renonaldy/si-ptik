@@ -28,20 +28,22 @@ func NewService(users user.Repository, tokens RefreshTokenRepository, jwt *jwtut
 	return &Service{users: users, tokens: tokens, jwt: jwt, accessTokenTTL: accessTTL, refreshTokenTTL: refreshTTL}
 }
 
-// Login validates credentials and issues a fresh token pair.
-func (s *Service) Login(ctx context.Context, email, password string) (*TokenPair, error) {
-	email = strings.ToLower(strings.TrimSpace(email))
-	if email == "" || password == "" {
-		return nil, apperror.New(apperror.CodeValidation, "email dan password wajib diisi")
+// Login validates credentials and issues a fresh token pair. The identifier is
+// an email (admin/dosen) or an NPM (mahasiswa); lowercasing digits is a no-op,
+// so a single lookup handles both.
+func (s *Service) Login(ctx context.Context, identifier, password string) (*TokenPair, error) {
+	identifier = strings.ToLower(strings.TrimSpace(identifier))
+	if identifier == "" || password == "" {
+		return nil, apperror.New(apperror.CodeValidation, "email/NPM dan password wajib diisi")
 	}
 
-	u, err := s.users.GetByEmail(ctx, email)
+	u, err := s.users.GetByEmail(ctx, identifier)
 	if err != nil {
 		return nil, fmt.Errorf("auth.Service.Login: %w", err)
 	}
-	// Same error for unknown-email and wrong-password (avoid user enumeration).
+	// Same error for unknown-identifier and wrong-password (avoid user enumeration).
 	if u == nil || bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password)) != nil {
-		return nil, apperror.New(apperror.CodeUnauthorized, "email atau password salah")
+		return nil, apperror.New(apperror.CodeUnauthorized, "email/NPM atau password salah")
 	}
 
 	return s.issuePair(ctx, u.ID, u.Role)

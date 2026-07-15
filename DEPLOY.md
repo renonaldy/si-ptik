@@ -208,5 +208,5 @@ docker compose -f docker-compose.prod.yml down          # stop (data di volume t
 | HTTPS gagal / "no certificate" | DNS belum menunjuk ke VPS, atau port 80/443 ketutup. Cek langkah 2 & 9, lalu `docker compose -f docker-compose.prod.yml logs web`. |
 | Build ke-kill / kehabisan memori | RAM kurang → tambahkan swap (langkah 4) atau naikkan RAM VPS. |
 | `web` sehat tapi `/api` error | Cek `logs api`. Biasanya `.env` (DATABASE_URL/JWT_SECRET) salah, atau migrate gagal. |
-| Login gagal "invalid credentials" | Seed belum dijalankan (langkah 8), atau password beda dari `.env`. |
+| Login gagal "invalid credentials" | Seed belum dijalankan (langkah 8), atau password bed  a dari `.env`. |
 | File upload hilang setelah redeploy | Pastikan volume `uploads` tidak dihapus. Jangan pakai `down -v` (itu menghapus volume + data!). |

@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"ptik/pkg/apperror"
@@ -31,6 +32,26 @@ var validRoles = map[string]bool{
 }
 
 const minPasswordLen = 8
+
+// npmPattern matches a student NPM: digits only, reasonable length (e.g. 1810013231009).
+var npmPattern = regexp.MustCompile(`^\d{5,20}$`)
+
+// normalizeIdentifier validates and normalizes the login identifier for a role.
+// Mahasiswa log in with their NPM (digits only); every other role uses an email.
+func normalizeIdentifier(role, raw string) (string, error) {
+	v := strings.TrimSpace(raw)
+	if role == RoleMahasiswa {
+		if !npmPattern.MatchString(v) {
+			return "", apperror.New(apperror.CodeValidation, "NPM tidak valid (hanya angka, 5–20 digit)")
+		}
+		return v, nil
+	}
+	v = strings.ToLower(v)
+	if v == "" || !strings.Contains(v, "@") {
+		return "", apperror.New(apperror.CodeValidation, "email tidak valid")
+	}
+	return v, nil
+}
 
 // canAssign reports whether an actor with actorRole may create/assign a target
 // with targetRole. super_admin may assign anything; admin may only manage the
@@ -64,18 +85,19 @@ func (s *Service) List(ctx context.Context, search string) ([]User, error) {
 
 // Create makes a new account. actorRole gates which target roles are allowed.
 func (s *Service) Create(ctx context.Context, actorRole string, in CreateInput) (*User, error) {
-	email := strings.ToLower(strings.TrimSpace(in.Email))
 	name := strings.TrimSpace(in.FullName)
 	role := strings.TrimSpace(in.Role)
 
-	if email == "" || !strings.Contains(email, "@") {
-		return nil, apperror.New(apperror.CodeValidation, "email tidak valid")
-	}
 	if name == "" {
 		return nil, apperror.New(apperror.CodeValidation, "nama lengkap wajib diisi")
 	}
 	if !validRoles[role] {
 		return nil, apperror.New(apperror.CodeValidation, "role tidak valid")
+	}
+	// Login identifier: NPM for mahasiswa, email for everyone else.
+	identifier, err := normalizeIdentifier(role, in.Email)
+	if err != nil {
+		return nil, err
 	}
 	if len(in.Password) < minPasswordLen {
 		return nil, apperror.New(apperror.CodeValidation, fmt.Sprintf("password minimal %d karakter", minPasswordLen))
@@ -84,12 +106,12 @@ func (s *Service) Create(ctx context.Context, actorRole string, in CreateInput) 
 		return nil, apperror.New(apperror.CodeForbidden, "Anda tidak berhak membuat akun dengan role tersebut")
 	}
 
-	existing, err := s.repo.GetByEmail(ctx, email)
+	existing, err := s.repo.GetByEmail(ctx, identifier)
 	if err != nil {
 		return nil, fmt.Errorf("user.Service.Create: %w", err)
 	}
 	if existing != nil {
-		return nil, apperror.New(apperror.CodeConflict, "email sudah digunakan")
+		return nil, apperror.New(apperror.CodeConflict, "email/NPM sudah digunakan")
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
@@ -98,7 +120,7 @@ func (s *Service) Create(ctx context.Context, actorRole string, in CreateInput) 
 	}
 	u := &User{
 		ID:           "user-" + uuid.NewString(),
-		Email:        email,
+		Email:        identifier,
 		PasswordHash: string(hash),
 		FullName:     name,
 		Role:         role,
@@ -125,6 +147,11 @@ func (s *Service) Update(ctx context.Context, actorRole, id string, in UpdateInp
 	if !validRoles[role] {
 		return nil, apperror.New(apperror.CodeValidation, "role tidak valid")
 	}
+	// Login identifier follows the (possibly new) role: NPM for mahasiswa, email otherwise.
+	identifier, err := normalizeIdentifier(role, in.Email)
+	if err != nil {
+		return nil, err
+	}
 
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {
@@ -137,7 +164,19 @@ func (s *Service) Update(ctx context.Context, actorRole, id string, in UpdateInp
 		return nil, apperror.New(apperror.CodeForbidden, "Anda tidak berhak mengubah akun ini")
 	}
 
-	u, err := s.repo.Update(ctx, id, name, role)
+	// If the identifier is being changed, make sure it isn't already taken by
+	// another account (matching your own current identifier is fine).
+	if identifier != existing.Email {
+		taken, err := s.repo.GetByEmail(ctx, identifier)
+		if err != nil {
+			return nil, fmt.Errorf("user.Service.Update: %w", err)
+		}
+		if taken != nil && taken.ID != id {
+			return nil, apperror.New(apperror.CodeConflict, "email/NPM sudah digunakan")
+		}
+	}
+
+	u, err := s.repo.Update(ctx, id, identifier, name, role)
 	if err != nil {
 		return nil, fmt.Errorf("user.Service.Update: %w", err)
 	}

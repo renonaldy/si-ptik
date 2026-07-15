@@ -15,7 +15,6 @@ import (
 	"ptik/internal/domain/dosen"
 	"ptik/internal/domain/download"
 	"ptik/internal/domain/galeri"
-	"ptik/internal/domain/menuaccess"
 	"ptik/internal/domain/microsoft"
 	"ptik/internal/domain/penelitian"
 	"ptik/internal/domain/sempro"
@@ -50,11 +49,12 @@ func main() {
 	defer pool.Close()
 
 	// ── Users (with roles) ──
+	// Mahasiswa log in with their NPM (not an email); everyone else uses email.
 	userRepo := pgRepo.NewUserRepository(pool)
 	seedUser(ctx, userRepo, "superadmin@ptik.id", "reno28", "Renonaldy Pratama D", "super_admin")
 	seedUser(ctx, userRepo, getEnv("SEED_ADMIN_EMAIL", "admin@ptik.id"), getEnv("SEED_ADMIN_PASSWORD", "admin12345"), "Administrator PTIK", "admin")
-	seedUser(ctx, userRepo, "dosen@ptik.id", "dosen12345", "Dr. Andi Wijaya, M.Kom", "dosen")
-	seedUser(ctx, userRepo, "mahasiswa@ptik.id", "mahasiswa12345", "Rizky Pratama", "mahasiswa")
+	dosenUserID := seedUser(ctx, userRepo, "dosen@ptik.id", "dosen12345", "Dr. Andi Wijaya, M.Kom", "dosen")
+	mahasiswaUserID := seedUser(ctx, userRepo, "1810013231009", "mahasiswa12345", "Rizky Pratama", "mahasiswa")
 
 	// ── Sample data per domain ──
 	if empty(ctx, pool, "dosens") {
@@ -164,26 +164,37 @@ func main() {
 		slog.Info("seed: site content created", "count", len(defaults))
 	}
 
-	// ── Default sidebar access for the configurable roles ──
-	if empty(ctx, pool, "role_menus") {
+	// ── Default sidebar access for the demo dosen/mahasiswa accounts ──
+	// Menu access is per-account (keyed by user id); admins always see everything.
+	if empty(ctx, pool, "user_menus") {
 		r := pgRepo.NewMenuAccessRepository(pool)
-		defaults := []menuaccess.Item{
-			{Role: "dosen", MenuKeys: []string{"dashboard", "dosen", "penelitian", "skripsi", "sempro", "ujian", "wisudawan"}},
-			{Role: "mahasiswa", MenuKeys: []string{"dashboard", "ujian", "berita", "galeri", "download"}},
+		defaults := []struct {
+			userID   string
+			menuKeys []string
+		}{
+			{dosenUserID, []string{"dashboard", "dosen", "penelitian", "skripsi", "sempro", "ujian", "wisudawan"}},
+			{mahasiswaUserID, []string{"dashboard", "ujian", "berita", "galeri", "download"}},
 		}
+		n := 0
 		for _, it := range defaults {
-			if err := r.Upsert(ctx, it.Role, it.MenuKeys, it.WriteKeys); err != nil {
-				slog.Error("seed: role menu failed", "err", err)
+			if it.userID == "" {
+				continue
+			}
+			if err := r.Upsert(ctx, it.userID, it.menuKeys, nil); err != nil {
+				slog.Error("seed: user menu failed", "err", err)
 				os.Exit(1)
 			}
+			n++
 		}
-		slog.Info("seed: role menus created", "count", len(defaults))
+		slog.Info("seed: user menus created", "count", n)
 	}
 
 	slog.Info("seed: done")
 }
 
-func seedUser(ctx context.Context, repo *pgRepo.UserRepository, email, password, name, role string) {
+// seedUser creates the account if missing and returns its user id (either the
+// existing row's or the newly-minted one) so callers can seed related config.
+func seedUser(ctx context.Context, repo *pgRepo.UserRepository, email, password, name, role string) string {
 	existing, err := repo.GetByEmail(ctx, email)
 	if err != nil {
 		slog.Error("seed: lookup user failed", "email", email, "err", err)
@@ -191,14 +202,16 @@ func seedUser(ctx context.Context, repo *pgRepo.UserRepository, email, password,
 	}
 	if existing != nil {
 		slog.Info("seed: user exists", "email", email, "role", role)
-		return
+		return existing.ID
 	}
+	newID := id("user")
 	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err := repo.Create(ctx, &user.User{ID: id("user"), Email: email, PasswordHash: string(hash), FullName: name, Role: role}); err != nil {
+	if err := repo.Create(ctx, &user.User{ID: newID, Email: email, PasswordHash: string(hash), FullName: name, Role: role}); err != nil {
 		slog.Error("seed: create user failed", "email", email, "err", err)
 		os.Exit(1)
 	}
 	slog.Info("seed: user created", "email", email, "password", password, "role", role)
+	return newID
 }
 
 func empty(ctx context.Context, pool *pgxpool.Pool, table string) bool {

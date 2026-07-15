@@ -120,7 +120,7 @@ func main() {
 	downloadSvc := download.NewService(downloadRepo)
 	pendaftaranSvc := pendaftaran.NewService(pendaftaranRepo)
 	contentSvc := content.NewService(contentRepo)
-	menuAccessSvc := menuaccess.NewService(menuAccessRepo)
+	menuAccessSvc := menuaccess.NewService(menuAccessRepo, userRepo)
 
 	// ── Handlers ──
 	authHandler := handler.NewAuthHandler(authSvc)
@@ -190,11 +190,15 @@ func main() {
 		// Protected — requires a valid access token. Reads are open to any
 		// authenticated user; writes need an admin role OR a per-menu CRUD grant
 		// (dosen/mahasiswa), resolved from the menu-access config by CRUDGuard.
+		// Per-account CRUD: menu access is keyed by user id, not role. The user id
+		// is already in ctx (set by Authenticate); role is unused here (admin roles
+		// are short-circuited inside CRUDGuard before this runs).
 		canWrite := func(ctx context.Context, role, menuKey string) (bool, error) {
-			if menuKey == "upload" { // shared endpoint: allow if the role can write anything
-				return menuAccessSvc.HasAnyWrite(ctx, role)
+			userID := mw.UserIDFromContext(ctx)
+			if menuKey == "upload" { // shared endpoint: allow if the account can write anything
+				return menuAccessSvc.HasAnyWrite(ctx, userID)
 			}
-			return menuAccessSvc.CanWrite(ctx, role, menuKey)
+			return menuAccessSvc.CanWrite(ctx, userID, menuKey)
 		}
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.Authenticate)

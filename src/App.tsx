@@ -22,6 +22,7 @@ import GaleriPublicPage from "./pages/public/GaleriPublicPage";
 import VisiMisiPage from "./pages/public/VisiMisiPage";
 import KewirausahaanPage from "./pages/public/KewirausahaanPage";
 import PelatihanMicrosoftPage from "./pages/public/PelatihanMicrosoftPage";
+import KurikulumObePage from "./pages/public/KurikulumObePage";
 import DownloadPublicPage from "./pages/public/DownloadPublicPage";
 import UjianDetailPage from "./pages/public/UjianDetailPage";
 import KontakPage from "./pages/public/KontakPage";
@@ -107,6 +108,7 @@ const App = () => {
               <Route path="/akademik/ujian/:id" element={<UjianDetailPage />} />
               <Route path="/kewirausahaan" element={<KewirausahaanPage />} />
               <Route path="/pelatihan-microsoft" element={<PelatihanMicrosoftPage />} />
+              <Route path="/kurikulum-obe" element={<KurikulumObePage />} />
               <Route path="/download" element={<DownloadPublicPage />} />
               <Route path="/kontak" element={<KontakPage />} />
               <Route path="/daftar" element={<DaftarPage />} />

@@ -24,6 +24,7 @@ type CreateInput struct {
 // UpdateInput carries the editable fields for an existing account (password is
 // changed through a dedicated reset endpoint, never here).
 type UpdateInput struct {
+	Email    string `json:"email"`
 	FullName string `json:"full_name"`
 	Role     string `json:"role"`
 }

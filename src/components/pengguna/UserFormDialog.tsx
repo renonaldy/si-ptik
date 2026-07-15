@@ -56,9 +56,13 @@ export function UserFormDialog({
     setRole(initial?.role ?? assignableRoles[0] ?? "");
   }, [open, initial, assignableRoles]);
 
+  // Mahasiswa log in with their NPM (digits); everyone else with an email.
+  const isMahasiswa = role === "mahasiswa";
   const emailValid = /.+@.+\..+/.test(email.trim());
+  const npmValid = /^\d{5,}$/.test(email.trim());
+  const identifierValid = isMahasiswa ? npmValid : emailValid;
   const passwordValid = isEdit || password.length >= 8;
-  const valid = fullName.trim() !== "" && role !== "" && (isEdit || emailValid) && passwordValid;
+  const valid = fullName.trim() !== "" && role !== "" && identifierValid && passwordValid;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +90,7 @@ export function UserFormDialog({
               {isEdit ? "Edit Akun" : "Buat Akun Baru"}
             </DialogTitle>
             <DialogDescription className="mt-0.5">
-              {isEdit ? "Perbarui nama dan role akun." : "Buat akun dosen atau mahasiswa baru."}
+              {isEdit ? "Perbarui data dan role akun." : "Buat akun dosen atau mahasiswa baru."}
             </DialogDescription>
           </div>
         </div>
@@ -108,18 +112,28 @@ export function UserFormDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor="user-email">
-                Email<span className="text-destructive"> *</span>
+                {isMahasiswa ? "NPM" : "Email"}<span className="text-destructive"> *</span>
               </Label>
               <Input
                 id="user-email"
-                type="email"
+                type={isMahasiswa ? "text" : "email"}
+                inputMode={isMahasiswa ? "numeric" : undefined}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isEdit}
-                placeholder="nama@ptik.id"
-                required={!isEdit}
+                placeholder={isMahasiswa ? "1810013231009" : "nama@ptik.id"}
+                required
               />
-              {isEdit && <p className="text-xs text-muted-foreground">Email tidak dapat diubah.</p>}
+              {isMahasiswa ? (
+                <p className="text-xs text-muted-foreground">
+                  Mahasiswa login memakai NPM (hanya angka){isEdit && ", dan bisa diubah di sini"}.
+                </p>
+              ) : (
+                isEdit && (
+                  <p className="text-xs text-muted-foreground">
+                    Mengubah email juga mengubah email untuk login akun ini.
+                  </p>
+                )
+              )}
             </div>
 
             <div className="space-y-1.5">
