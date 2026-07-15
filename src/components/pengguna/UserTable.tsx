@@ -43,7 +43,7 @@ export function UserTable({ data, actorRole, meId, onEdit, onResetPassword, onDe
       <TableHeader>
         <TableRow>
           <TableHead>Nama</TableHead>
-          <TableHead>Email</TableHead>
+          <TableHead>Email / NPM</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>Dibuat</TableHead>
           <TableHead className="w-[1%] text-right">Aksi</TableHead>

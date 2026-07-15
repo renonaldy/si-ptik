@@ -5,65 +5,93 @@ import (
 	"fmt"
 	"strings"
 
+	"ptik/internal/domain/user"
 	"ptik/pkg/apperror"
 )
 
-type Service struct{ repo Repository }
+// Users is the minimal user-lookup the service needs to validate that a target
+// account exists and is a configurable role. Satisfied by *user.Repository
+// (same decoupling pattern auth.Service uses).
+type Users interface {
+	GetByID(ctx context.Context, id string) (*user.User, error)
+}
 
-func NewService(repo Repository) *Service { return &Service{repo: repo} }
+type Service struct {
+	repo  Repository
+	users Users
+}
+
+func NewService(repo Repository, users Users) *Service {
+	return &Service{repo: repo, users: users}
+}
 
 // ConfigurableRoles are the only roles whose sidebar can be tuned. Admin roles
 // always see everything, so configuring them would be meaningless (and unsafe).
-var ConfigurableRoles = map[string]bool{"dosen": true, "mahasiswa": true}
+var ConfigurableRoles = map[string]bool{user.RoleDosen: true, user.RoleMahasiswa: true}
 
-func (s *Service) List(ctx context.Context) ([]RoleMenu, error) {
+func (s *Service) List(ctx context.Context) ([]UserMenu, error) {
 	return s.repo.List(ctx)
 }
 
-// SetMany upserts the menu + write lists for one or more configurable roles.
+// Get returns one account's menu config (nil if none stored yet).
+func (s *Service) Get(ctx context.Context, userID string) (*UserMenu, error) {
+	return s.repo.Get(ctx, userID)
+}
+
+// SetMany upserts the menu + write lists for one or more configurable accounts.
 func (s *Service) SetMany(ctx context.Context, items []Item) error {
 	for _, it := range items {
-		role := strings.TrimSpace(it.Role)
-		if !ConfigurableRoles[role] {
-			return apperror.New(apperror.CodeValidation, "role tidak dapat dikonfigurasi: "+it.Role)
+		userID := strings.TrimSpace(it.UserID)
+		if userID == "" {
+			return apperror.New(apperror.CodeValidation, "user_id wajib diisi")
+		}
+		u, err := s.users.GetByID(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("menuaccess.Service.SetMany: %w", err)
+		}
+		if u == nil {
+			return apperror.New(apperror.CodeNotFound, "akun tidak ditemukan")
+		}
+		if !ConfigurableRoles[u.Role] {
+			return apperror.New(apperror.CodeValidation, "akun ini tidak dapat dikonfigurasi (hanya dosen & mahasiswa)")
 		}
 		menuKeys := dedupe(it.MenuKeys)
-		// A role can only write to menus it can also see: write ⊆ view.
+		// An account can only write to menus it can also see: write ⊆ view.
 		writeKeys := intersect(dedupe(it.WriteKeys), menuKeys)
-		if err := s.repo.Upsert(ctx, role, menuKeys, writeKeys); err != nil {
+		if err := s.repo.Upsert(ctx, userID, menuKeys, writeKeys); err != nil {
 			return fmt.Errorf("menuaccess.Service.SetMany: %w", err)
 		}
 	}
 	return nil
 }
 
-// CanWrite reports whether a configurable role may CRUD the given menu key.
+// CanWrite reports whether the given account may CRUD the given menu key.
 // (Admin roles are handled by the caller and never reach here.)
-func (s *Service) CanWrite(ctx context.Context, role, menuKey string) (bool, error) {
-	if !ConfigurableRoles[role] {
+func (s *Service) CanWrite(ctx context.Context, userID, menuKey string) (bool, error) {
+	if strings.TrimSpace(userID) == "" {
 		return false, nil
 	}
-	rm, err := s.repo.Get(ctx, role)
+	um, err := s.repo.Get(ctx, userID)
 	if err != nil {
 		return false, fmt.Errorf("menuaccess.Service.CanWrite: %w", err)
 	}
-	if rm == nil {
+	if um == nil {
 		return false, nil
 	}
-	return contains(rm.WriteKeys, menuKey), nil
+	return contains(um.WriteKeys, menuKey), nil
 }
 
-// HasAnyWrite reports whether a configurable role may CRUD at least one menu
+// HasAnyWrite reports whether the given account may CRUD at least one menu
 // (used to allow shared endpoints like file upload).
-func (s *Service) HasAnyWrite(ctx context.Context, role string) (bool, error) {
-	if !ConfigurableRoles[role] {
+func (s *Service) HasAnyWrite(ctx context.Context, userID string) (bool, error) {
+	if strings.TrimSpace(userID) == "" {
 		return false, nil
 	}
-	rm, err := s.repo.Get(ctx, role)
+	um, err := s.repo.Get(ctx, userID)
 	if err != nil {
 		return false, fmt.Errorf("menuaccess.Service.HasAnyWrite: %w", err)
 	}
-	return rm != nil && len(rm.WriteKeys) > 0, nil
+	return um != nil && len(um.WriteKeys) > 0, nil
 }
 
 // dedupe trims blanks and removes duplicate keys while preserving order. Always

@@ -113,8 +113,8 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@ptik.id" required autoFocus />
+                <Label htmlFor="email">Email atau NPM</Label>
+                <Input id="email" type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@ptik.id atau NPM" required autoFocus />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
@@ -129,9 +129,9 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <p className="mt-6 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-center text-xs text-muted-foreground">
+            {/* <p className="mt-6 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-center text-xs text-muted-foreground">
               Demo: <span className="font-medium text-foreground">admin@ptik.id</span> / <span className="font-medium text-foreground">admin12345</span>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

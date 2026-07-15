@@ -6,13 +6,17 @@ import (
 	"net/http"
 
 	"ptik/internal/domain/menuaccess"
+	"ptik/internal/domain/user"
+	mw "ptik/internal/handler/middleware"
+	"ptik/pkg/apperror"
 	"ptik/pkg/response"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type MenuAccessService interface {
-	List(ctx context.Context) ([]menuaccess.RoleMenu, error)
+	List(ctx context.Context) ([]menuaccess.UserMenu, error)
+	Get(ctx context.Context, userID string) (*menuaccess.UserMenu, error)
 	SetMany(ctx context.Context, items []menuaccess.Item) error
 }
 
@@ -22,11 +26,35 @@ func NewMenuAccessHandler(svc MenuAccessService) *MenuAccessHandler {
 	return &MenuAccessHandler{svc: svc}
 }
 
-// Routes: GET readable by any authenticated user (a dosen/mahasiswa needs its own
-// config to render the sidebar); PUT is gated by WriteGuard to admin roles.
+// Routes: GET /me is readable by any authenticated user (a dosen/mahasiswa needs
+// its own config to render the sidebar); the full list + PUT are admin-only so
+// lower roles can't read or change other accounts' access.
 func (h *MenuAccessHandler) Routes(r chi.Router) {
-	r.Get("/", h.List)
-	r.Put("/", h.Save)
+	r.Get("/me", h.Mine)
+
+	r.Group(func(r chi.Router) {
+		r.Use(mw.RequireRole(user.RoleSuperAdmin, user.RoleAdmin))
+		r.Get("/", h.List)
+		r.Put("/", h.Save)
+	})
+}
+
+// Mine returns the current account's menu config (empty default if none stored).
+func (h *MenuAccessHandler) Mine(w http.ResponseWriter, r *http.Request) {
+	userID := mw.UserIDFromContext(r.Context())
+	if userID == "" {
+		response.Error(w, apperror.New(apperror.CodeUnauthorized, "not authenticated"))
+		return
+	}
+	um, err := h.svc.Get(r.Context(), userID)
+	if err != nil {
+		response.Error(w, err)
+		return
+	}
+	if um == nil {
+		um = &menuaccess.UserMenu{UserID: userID, MenuKeys: []string{}, WriteKeys: []string{}}
+	}
+	response.JSON(w, http.StatusOK, um)
 }
 
 func (h *MenuAccessHandler) List(w http.ResponseWriter, r *http.Request) {

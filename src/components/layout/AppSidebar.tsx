@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react";
 
 import { useSiteContent } from "@/features/content/useSiteContent";
 import { useMe } from "@/features/auth/useMe";
-import { useMenuAccessList } from "@/features/menuAccess/hooks/useMenuAccess";
+import { useMyMenuAccess } from "@/features/menuAccess/hooks/useMenuAccess";
 import { canManage, isSuperAdmin } from "@/features/auth/permissions";
 import { MENU, ALWAYS_ALLOWED, type MenuSection } from "@/lib/menu";
 import { BrandLogo } from "@/components/shared/BrandLogo";
@@ -19,27 +19,27 @@ export function AppSidebar({ onNavItemClick }: AppSidebarProps) {
   const location = useLocation();
   const { get } = useSiteContent();
   const { data: me } = useMe();
-  const { data: access = [] } = useMenuAccessList();
+  const { data: myAccess } = useMyMenuAccess();
 
   const role = me?.role;
   const manage = canManage(role);
 
-  // Build the visible sections for this role. Admins see everything; dosen/
-  // mahasiswa see only the keys granted to them (dashboard always included),
-  // and never the admin-only system menus.
+  // Build the visible sections for this account. Admins see everything; dosen/
+  // mahasiswa see only the keys granted to their account (dashboard always
+  // included), and never the admin-only system menus.
   const sections = useMemo<MenuSection[]>(() => {
     if (manage) return MENU;
 
     const allowed = new Set<string>([
       ...ALWAYS_ALLOWED,
-      ...(access.find((a) => a.role === role)?.menu_keys ?? []),
+      ...(myAccess?.menu_keys ?? []),
     ]);
 
     return MENU.map((section) => ({
       ...section,
       items: section.items.filter((item) => !item.adminOnly && allowed.has(item.key)),
     })).filter((section) => section.items.length > 0);
-  }, [manage, access, role]);
+  }, [manage, myAccess]);
 
   const go = (path: string) => {
     navigate(path);

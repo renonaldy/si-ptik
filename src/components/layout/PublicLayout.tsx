@@ -54,6 +54,7 @@ const NAV: NavEntry[] = [
     base: "/pelatihan-microsoft",
     items: [
       { label: "Pelatihan Microsoft", to: "/pelatihan-microsoft" },
+      { label: "Kurikulum OBE", to: "/kurikulum-obe" },
       { label: "Kewirausahaan", to: "https://kewirausahaanptik.my.id/", external: true },
       { label: "Hattatik", to: "https://hattatik.com/", external: true },
     ],

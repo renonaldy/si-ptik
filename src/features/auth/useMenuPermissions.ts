@@ -1,15 +1,15 @@
 import { useMe } from "@/features/auth/useMe";
-import { useMenuAccessList } from "@/features/menuAccess/hooks/useMenuAccess";
+import { useMyMenuAccess } from "@/features/menuAccess/hooks/useMenuAccess";
 import { canManage } from "@/features/auth/permissions";
 import type { MenuKey } from "@/lib/menu";
 
-// Whether the current user may CRUD (create/update/delete) the given menu.
+// Whether the current account may CRUD (create/update/delete) the given menu.
 // super_admin/admin always can; dosen/mahasiswa only if granted write access to
-// that menu in the Hak Akses Menu config. Mirrors the backend CRUDGuard.
+// that menu in their per-account Hak Akses Menu config. Mirrors the backend CRUDGuard.
 export function useCanWrite(menu: MenuKey): boolean {
   const { data: me } = useMe();
-  const { data: access = [] } = useMenuAccessList();
+  const { data: myAccess } = useMyMenuAccess();
   if (canManage(me?.role)) return true;
-  const writeKeys = access.find((a) => a.role === me?.role)?.write_keys ?? [];
+  const writeKeys = myAccess?.write_keys ?? [];
   return writeKeys.includes(menu);
 }
