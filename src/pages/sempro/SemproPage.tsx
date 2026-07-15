@@ -15,8 +15,7 @@ import {
   useUpdateSempro,
   useDeleteSempro,
 } from "@/features/sempro/hooks/useSempro";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Sempro, SemproInput } from "@/lib/api/semproApi";
 
@@ -28,8 +27,7 @@ export default function SemproPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Sempro | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("sempro");
 
   const { data: rows = [], isLoading } = useSemproList(search);
   const createMut = useCreateSempro();

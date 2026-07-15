@@ -1,0 +1,92 @@
+# Production stack for SI PTIK — run this on a VPS (not on shared/cPanel hosting).
+#
+#   frontend (Caddy, TLS)  ──/api,/uploads──▶  api (Go)  ──▶  db (PostgreSQL)
+#
+# Only the web (Caddy) container is exposed to the internet (ports 80/443).
+# The API and database stay private on the internal Docker network.
+#
+# Usage:
+#   cp .env.prod.example .env      # then fill in real secrets
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   # first run only — create the admin user:
+#   docker compose -f docker-compose.prod.yml run --rm --entrypoint /seed api
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # No `ports:` — the DB is only reachable from other containers, never the internet.
+
+  # One-shot: applies goose migrations, then exits.
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=db port=5432 user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable"
+    restart: "no"
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PORT: 8080
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable"
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-24h}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-336h}
+      CORS_ALLOWED_ORIGINS: ${SITE_URL}
+      PUBLIC_BASE_URL: ${SITE_URL}
+      UPLOAD_DIR: /data/uploads
+      # Used only by the one-shot `/seed` run below.
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@ptik.id}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin12345}
+    volumes:
+      - uploads:/data/uploads
+    # No `ports:` — reached only through the web (Caddy) container.
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+      ACME_EMAIL: ${ACME_EMAIL}
+      API_UPSTREAM: api:8080
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data     # persists the Let's Encrypt certificates
+      - caddy_config:/config
+
+volumes:
+  pg_data:
+  uploads:
+  caddy_data:
+  caddy_config:

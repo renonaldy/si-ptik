@@ -93,6 +93,22 @@ Login redirects to `/dashboard`.
 
 - **RBAC (frontend):** `me.role` drives `canManage(role)` (`features/auth/permissions.ts`).
   Non-admin roles (`dosen`/`mahasiswa`) get read-only pages — create/edit/delete UI is hidden.
+  Four roles: `super_admin` (everything + System Version footer), `admin` (everything **except**
+  System Version — gated by `isSuperAdmin`), `dosen`/`mahasiswa` (read-only, restricted sidebar).
+- **Menu RBAC:** the sidebar is defined once in `lib/menu.ts` (`MENU`, `MenuKey`, `adminOnly`, `crud`).
+  Admins see all; `dosen`/`mahasiswa` see only keys granted per-role via the **Hak Akses Menu**
+  page (`/kelola/akses`, `features/menuAccess`, backend `role_menus`). `dashboard` is always on.
+  `components/auth/RouteAccess` enforces the same rules per-route (admins bypass; `adminOnly`
+  pages redirect lower roles to `/dashboard`).
+- **Per-menu CRUD for lower roles:** `role_menus.write_keys` (⊆ `menu_keys`) grants a
+  `dosen`/`mahasiswa` create/edit/delete on a specific menu. The Hak Akses Menu page has a
+  **Kelola** toggle per menu (only for items with `crud: true`). Pages call
+  `useCanWrite(menuKey)` (`features/auth/useMenuPermissions`) instead of `canManage(role)` to
+  decide whether to show create/edit/delete UI — admins always true. Backend enforces it too
+  (see backend CLAUDE.md `CRUDGuard`), so hiding the UI is not the only line of defense.
+- **User management:** admins create/edit/delete accounts + reset passwords at `/kelola/pengguna`
+  (`pages/pengguna`, `features/users`, backend `/users`). `super_admin` may assign any role;
+  `admin` may only manage `dosen`/`mahasiswa` (`assignableRoles`, enforced server-side too).
 - **Dark mode:** `lib/theme.ts` toggles the `.dark` class (persisted); toggle lives in the
   TopBar `UserMenu`. Applied on load in `App.tsx`.
 - **File upload:** `FileUploadField` (used in forms for `file`/`foto`) posts to `/upload`

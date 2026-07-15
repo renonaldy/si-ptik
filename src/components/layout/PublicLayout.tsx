@@ -1,12 +1,19 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Moon, Sun, Send } from "lucide-react";
+import { Menu, X, ChevronDown, Moon, Sun, Send, ArrowUpRight, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { loadTheme, toggleTheme, type Theme } from "@/lib/theme";
+import { BrandLogo } from "@/components/shared/BrandLogo";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
-type NavLeaf = { label: string; to: string };
+type NavLeaf = { label: string; to: string; external?: boolean };
 type NavEntry =
   | { type: "link"; label: string; to: string }
   | { type: "dropdown"; label: string; base: string; items: NavLeaf[] };
@@ -41,6 +48,16 @@ const NAV: NavEntry[] = [
       { label: "Prospek Kerja", to: "/akademik/prospek-kerja" },
     ],
   },
+  {
+    type: "dropdown",
+    label: "Pengembangan",
+    base: "/pelatihan-microsoft",
+    items: [
+      { label: "Pelatihan Microsoft", to: "/pelatihan-microsoft" },
+      { label: "Kewirausahaan", to: "https://kewirausahaanptik.my.id/", external: true },
+      { label: "Hattatik", to: "https://hattatik.com/", external: true },
+    ],
+  },
   { type: "link", label: "Berita", to: "/berita" },
   { type: "link", label: "Galeri", to: "/galeri" },
   { type: "link", label: "Kontak", to: "/kontak" },
@@ -49,9 +66,7 @@ const NAV: NavEntry[] = [
 function Brand() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-sm font-bold text-primary-foreground">
-        P
-      </div>
+      <BrandLogo className="h-10 w-10" />
       <div className="leading-tight">
         <div className="text-sm font-bold text-foreground">SI PTIK</div>
         <div className="text-[11px] text-muted-foreground">Program Studi</div>
@@ -76,7 +91,7 @@ function ThemeToggle() {
 }
 
 // Centered pill navigation (template's signature nav).
-function DesktopNav() {
+function DesktopNav({ onExternal }: { onExternal: (leaf: NavLeaf) => void }) {
   const { pathname } = useLocation();
   const [openKey, setOpenKey] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -128,15 +143,35 @@ function DesktopNav() {
             </button>
             {openKey === item.label && (
               <div className="absolute left-1/2 z-50 mt-3 max-h-[70vh] w-60 -translate-x-1/2 overflow-auto rounded-2xl border border-border bg-popover p-2 shadow-2xl ring-1 ring-black/5 dark:border-white/10 dark:ring-white/10">
-                {item.items.map((sub) => (
-                  <Link
-                    key={sub.to}
-                    to={sub.to}
-                    className="block rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    {sub.label}
-                  </Link>
-                ))}
+                {item.items.map((sub) =>
+                  sub.external ? (
+                    <a
+                      key={sub.to}
+                      href={sub.to}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onExternal(sub);
+                      }}
+                      className="group/ext flex items-center justify-between gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      <span>{sub.label}</span>
+                      <ArrowUpRight
+                        aria-hidden
+                        className="h-4 w-4 shrink-0 text-muted-foreground/50 opacity-60 transition-all duration-200 ease-out group-hover/ext:-translate-y-0.5 group-hover/ext:translate-x-0.5 group-hover/ext:text-primary group-hover/ext:opacity-100"
+                      />
+                    </a>
+                  ) : (
+                    <Link
+                      key={sub.to}
+                      to={sub.to}
+                      className="block rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      {sub.label}
+                    </Link>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -146,8 +181,47 @@ function DesktopNav() {
   );
 }
 
+// Loading interstitial that auto-forwards to an external link.
+function ExternalRedirectDialog({
+  leaf,
+  onOpenChange,
+}: {
+  leaf: NavLeaf | null;
+  onOpenChange: (open: boolean) => void;
+}) {
+  useEffect(() => {
+    if (!leaf) return;
+    const t = setTimeout(() => {
+      window.location.href = leaf.to;
+    }, 1600);
+    return () => clearTimeout(t);
+  }, [leaf]);
+
+  return (
+    <Dialog open={!!leaf} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm [&>button]:hidden">
+        <div className="flex flex-col items-center gap-5 py-6 text-center">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <Loader2 className="absolute h-16 w-16 animate-spin text-primary/70" strokeWidth={1.5} />
+            <ExternalLink className="h-6 w-6 text-primary" />
+          </div>
+          <div className="space-y-1.5">
+            <DialogTitle>Mengalihkan…</DialogTitle>
+            <DialogDescription>
+              Anda sedang diarahkan ke{" "}
+              <span className="font-medium text-foreground">{leaf?.label}</span>. Mohon tunggu
+              sebentar.
+            </DialogDescription>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function PublicLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [pendingExternal, setPendingExternal] = useState<NavLeaf | null>(null);
   const { pathname } = useLocation();
   useEffect(() => setOpen(false), [pathname]);
 
@@ -166,7 +240,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <Brand />
           </div>
 
-          <DesktopNav />
+          <DesktopNav onExternal={setPendingExternal} />
 
           <div className="flex items-center justify-self-end gap-2 sm:gap-3">
             <ThemeToggle />
@@ -211,22 +285,43 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                     <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                       {n.label}
                     </div>
-                    {n.items.map((sub) => (
-                      <NavLink
-                        key={sub.to}
-                        to={sub.to}
-                        className={({ isActive }) =>
-                          cn(
-                            "block rounded-lg px-3 py-2 pl-5 text-sm font-medium transition-colors",
-                            isActive
-                              ? "bg-primary/10 text-primary"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                          )
-                        }
-                      >
-                        {sub.label}
-                      </NavLink>
-                    ))}
+                    {n.items.map((sub) =>
+                      sub.external ? (
+                        <a
+                          key={sub.to}
+                          href={sub.to}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setOpen(false);
+                            setPendingExternal(sub);
+                          }}
+                          className="group/ext flex items-center justify-between gap-2 rounded-lg px-3 py-2 pl-5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                          <span>{sub.label}</span>
+                          <ArrowUpRight
+                            aria-hidden
+                            className="h-4 w-4 shrink-0 text-muted-foreground/50 opacity-60 transition-all duration-200 ease-out group-hover/ext:-translate-y-0.5 group-hover/ext:translate-x-0.5 group-hover/ext:text-primary group-hover/ext:opacity-100"
+                          />
+                        </a>
+                      ) : (
+                        <NavLink
+                          key={sub.to}
+                          to={sub.to}
+                          className={({ isActive }) =>
+                            cn(
+                              "block rounded-lg px-3 py-2 pl-5 text-sm font-medium transition-colors",
+                              isActive
+                                ? "bg-primary/10 text-primary"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            )
+                          }
+                        >
+                          {sub.label}
+                        </NavLink>
+                      ),
+                    )}
                   </div>
                 ),
               )}
@@ -251,9 +346,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             {/* Brand + socials */}
             <div className="lg:col-span-4">
               <Link to="/" className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-sm font-bold text-white">
-                  P
-                </div>
+                <BrandLogo className="h-10 w-10" />
                 <div className="leading-tight">
                   <div className="text-sm font-bold text-white">SI PTIK</div>
                   <div className="text-[11px] text-gray-500">Program Studi</div>
@@ -325,10 +418,26 @@ export function PublicLayout({ children }: { children: ReactNode }) {
 
         <div className="relative z-10 border-t border-gray-800">
           <div className="mx-auto max-w-6xl px-4 py-5 text-center text-xs text-gray-500 md:px-6">
-            © {new Date().getFullYear()} Program Studi PTIK. Seluruh hak cipta dilindungi.
+            © {new Date().getFullYear()} Program Studi PTIK. Seluruh hak cipta dilindungi{" "}
+            <a
+              href="https://wa.me/6283898262052"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-gray-400 underline-offset-2 transition hover:text-white hover:underline"
+            >
+              Developer
+            </a>
+            .
           </div>
         </div>
       </footer>
+
+      <ExternalRedirectDialog
+        leaf={pendingExternal}
+        onOpenChange={(o) => {
+          if (!o) setPendingExternal(null);
+        }}
+      />
     </div>
   );
 }

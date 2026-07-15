@@ -1,0 +1,15 @@
+# ── Build the React app ──
+# No VITE_API_URL is passed, so the client falls back to same-origin `/api/v1`
+# (see src/lib/api/config.ts) — Caddy proxies that to the Go backend.
+FROM oven/bun:1 AS build
+WORKDIR /app
+COPY package.json bun.lock* ./
+RUN bun install
+COPY . .
+RUN bun run build
+
+# ── Serve static files + terminate TLS with Caddy ──
+FROM caddy:2-alpine
+COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/dist /srv
+EXPOSE 80 443

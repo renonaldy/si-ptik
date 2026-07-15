@@ -15,8 +15,7 @@ import {
   useUpdateBerita,
   useDeleteBerita,
 } from "@/features/berita/hooks/useBerita";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Berita, BeritaInput } from "@/lib/api/beritaApi";
 
@@ -28,8 +27,7 @@ export default function BeritaPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Berita | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("berita");
 
   const { data: rows = [], isLoading } = useBeritaList(search);
   const createMut = useCreateBerita();

@@ -15,8 +15,7 @@ import {
   useUpdatePenelitian,
   useDeletePenelitian,
 } from "@/features/penelitian/hooks/usePenelitian";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Penelitian, PenelitianInput } from "@/lib/api/penelitianApi";
 
@@ -28,8 +27,7 @@ export default function PenelitianPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Penelitian | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("penelitian");
 
   const { data: rows = [], isLoading } = usePenelitianList(search);
   const createMut = useCreatePenelitian();

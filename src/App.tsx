@@ -21,6 +21,7 @@ import BeritaDetailPage from "./pages/public/BeritaDetailPage";
 import GaleriPublicPage from "./pages/public/GaleriPublicPage";
 import VisiMisiPage from "./pages/public/VisiMisiPage";
 import KewirausahaanPage from "./pages/public/KewirausahaanPage";
+import PelatihanMicrosoftPage from "./pages/public/PelatihanMicrosoftPage";
 import DownloadPublicPage from "./pages/public/DownloadPublicPage";
 import UjianDetailPage from "./pages/public/UjianDetailPage";
 import KontakPage from "./pages/public/KontakPage";
@@ -50,8 +51,11 @@ import PendaftaranPage from "./pages/pendaftaran/PendaftaranPage";
 import KurikulumPage from "./pages/kurikulum/KurikulumPage";
 import KontenBerandaPage from "./pages/beranda/KontenBerandaPage";
 import PengaturanSitusPage from "./pages/pengaturan/PengaturanSitusPage";
+import PenggunaPage from "./pages/pengguna/PenggunaPage";
+import AksesMenuPage from "./pages/akses/AksesMenuPage";
 import UjianPage from "./pages/ujian/UjianPage";
 import NotFound from "./pages/NotFound";
+import { RouteAccess } from "./components/auth/RouteAccess";
 
 // Route guard (layout route via <Outlet/>)
 function RequireAuth() {
@@ -102,33 +106,37 @@ const App = () => {
               <Route path="/akademik/ujian" element={<KegiatanUjianPage />} />
               <Route path="/akademik/ujian/:id" element={<UjianDetailPage />} />
               <Route path="/kewirausahaan" element={<KewirausahaanPage />} />
+              <Route path="/pelatihan-microsoft" element={<PelatihanMicrosoftPage />} />
               <Route path="/download" element={<DownloadPublicPage />} />
               <Route path="/kontak" element={<KontakPage />} />
               <Route path="/daftar" element={<DaftarPage />} />
               <Route path="/admin/ptik/login" element={<LoginPage />} />
               <Route path="/login" element={<Navigate to="/admin/ptik/login" replace />} />
 
-              {/* Internal app — requires auth */}
+              {/* Internal app — requires auth. RouteAccess gates each page by
+                  role/menu config (admins bypass; dosen/mahasiswa are limited). */}
               <Route element={<RequireAuth />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/dosen" element={<DosenPage />} />
-                <Route path="/alumni" element={<AlumniPage />} />
-                <Route path="/administrasi" element={<AdministrasiPage />} />
-                <Route path="/penelitian" element={<PenelitianPage />} />
-                <Route path="/skripsi" element={<SkripsiPage />} />
-                <Route path="/skripsi-alumni" element={<SkripsiAlumniPage />} />
-                <Route path="/sempro" element={<SemproPage />} />
-                <Route path="/wisudawan" element={<WisudawanPage />} />
-                <Route path="/sumbangan" element={<SumbanganPage />} />
-                <Route path="/microsoft" element={<MicrosoftPage />} />
-                <Route path="/kelola/ujian" element={<UjianPage />} />
-                <Route path="/kelola/berita" element={<BeritaPage />} />
-                <Route path="/kelola/galeri" element={<GaleriPage />} />
-                <Route path="/kelola/download" element={<DownloadPage />} />
-                <Route path="/kelola/pendaftaran" element={<PendaftaranPage />} />
-                <Route path="/kelola/kurikulum" element={<KurikulumPage />} />
-                <Route path="/kelola/beranda" element={<KontenBerandaPage />} />
-                <Route path="/kelola/pengaturan" element={<PengaturanSitusPage />} />
+                <Route path="/dashboard" element={<RouteAccess menu="dashboard"><DashboardPage /></RouteAccess>} />
+                <Route path="/dosen" element={<RouteAccess menu="dosen"><DosenPage /></RouteAccess>} />
+                <Route path="/alumni" element={<RouteAccess menu="alumni"><AlumniPage /></RouteAccess>} />
+                <Route path="/administrasi" element={<RouteAccess menu="administrasi"><AdministrasiPage /></RouteAccess>} />
+                <Route path="/penelitian" element={<RouteAccess menu="penelitian"><PenelitianPage /></RouteAccess>} />
+                <Route path="/skripsi" element={<RouteAccess menu="skripsi"><SkripsiPage /></RouteAccess>} />
+                <Route path="/skripsi-alumni" element={<RouteAccess menu="skripsi-alumni"><SkripsiAlumniPage /></RouteAccess>} />
+                <Route path="/sempro" element={<RouteAccess menu="sempro"><SemproPage /></RouteAccess>} />
+                <Route path="/wisudawan" element={<RouteAccess menu="wisudawan"><WisudawanPage /></RouteAccess>} />
+                <Route path="/sumbangan" element={<RouteAccess menu="sumbangan"><SumbanganPage /></RouteAccess>} />
+                <Route path="/microsoft" element={<RouteAccess menu="microsoft"><MicrosoftPage /></RouteAccess>} />
+                <Route path="/kelola/ujian" element={<RouteAccess menu="ujian"><UjianPage /></RouteAccess>} />
+                <Route path="/kelola/berita" element={<RouteAccess menu="berita"><BeritaPage /></RouteAccess>} />
+                <Route path="/kelola/galeri" element={<RouteAccess menu="galeri"><GaleriPage /></RouteAccess>} />
+                <Route path="/kelola/download" element={<RouteAccess menu="download"><DownloadPage /></RouteAccess>} />
+                <Route path="/kelola/pendaftaran" element={<RouteAccess menu="pendaftaran"><PendaftaranPage /></RouteAccess>} />
+                <Route path="/kelola/kurikulum" element={<RouteAccess menu="kurikulum"><KurikulumPage /></RouteAccess>} />
+                <Route path="/kelola/beranda" element={<RouteAccess menu="beranda"><KontenBerandaPage /></RouteAccess>} />
+                <Route path="/kelola/pengguna" element={<RouteAccess adminOnly><PenggunaPage /></RouteAccess>} />
+                <Route path="/kelola/akses" element={<RouteAccess adminOnly><AksesMenuPage /></RouteAccess>} />
+                <Route path="/kelola/pengaturan" element={<RouteAccess adminOnly><PengaturanSitusPage /></RouteAccess>} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

@@ -1,0 +1,137 @@
+import {
+  LayoutDashboard,
+  GraduationCap,
+  Users,
+  FileText,
+  FlaskConical,
+  BookOpen,
+  BookMarked,
+  FileCheck,
+  ClipboardCheck,
+  Award,
+  HandCoins,
+  Laptop,
+  Newspaper,
+  Image as ImageIcon,
+  Download as DownloadIcon,
+  Inbox,
+  Settings,
+  MessagesSquare,
+  UserCog,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
+
+// Canonical menu keys — the stable identity of every sidebar entry. Used by the
+// sidebar, the per-role access config, and the route guards. Keep in sync with
+// the routes in App.tsx and the backend seed defaults.
+export type MenuKey =
+  | "dashboard"
+  | "dosen"
+  | "penelitian"
+  | "skripsi"
+  | "sempro"
+  | "ujian"
+  | "wisudawan"
+  | "administrasi"
+  | "alumni"
+  | "skripsi-alumni"
+  | "sumbangan"
+  | "microsoft"
+  | "berita"
+  | "galeri"
+  | "download"
+  | "kurikulum"
+  | "beranda"
+  | "pendaftaran"
+  | "pengaturan"
+  | "pengguna"
+  | "akses";
+
+export interface MenuItem {
+  key: MenuKey;
+  label: string;
+  icon: LucideIcon;
+  path: string;
+  /** Only super_admin + admin ever see this. Never configurable for lower roles. */
+  adminOnly?: boolean;
+  /** Has a per-menu CRUD backend, so CRUD rights can be granted to lower roles.
+   *  (Excludes dashboard and the content-backed pages, which stay admin-only.) */
+  crud?: boolean;
+}
+
+export interface MenuSection {
+  heading: string;
+  items: MenuItem[];
+}
+
+// Single source of truth for the whole sidebar.
+export const MENU: MenuSection[] = [
+  {
+    heading: "Utama",
+    items: [{ key: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" }],
+  },
+  {
+    heading: "Akademik",
+    items: [
+      { key: "dosen", label: "Dosen", icon: GraduationCap, path: "/dosen", crud: true },
+      { key: "penelitian", label: "Penelitian", icon: FlaskConical, path: "/penelitian", crud: true },
+      { key: "skripsi", label: "Skripsi", icon: BookOpen, path: "/skripsi", crud: true },
+      { key: "sempro", label: "Sempro", icon: FileCheck, path: "/sempro", crud: true },
+      { key: "ujian", label: "Jadwal Ujian", icon: ClipboardCheck, path: "/kelola/ujian", crud: true },
+      { key: "wisudawan", label: "Wisudawan", icon: Award, path: "/wisudawan", crud: true },
+      { key: "administrasi", label: "Administrasi", icon: FileText, path: "/administrasi", crud: true },
+    ],
+  },
+  {
+    heading: "Alumni",
+    items: [
+      { key: "alumni", label: "Alumni", icon: Users, path: "/alumni", crud: true },
+      { key: "skripsi-alumni", label: "Skripsi Alumni", icon: BookMarked, path: "/skripsi-alumni", crud: true },
+      { key: "sumbangan", label: "Sumbangan", icon: HandCoins, path: "/sumbangan", crud: true },
+    ],
+  },
+  {
+    heading: "Pelatihan",
+    items: [{ key: "microsoft", label: "Pelatihan Microsoft", icon: Laptop, path: "/microsoft", crud: true }],
+  },
+  {
+    heading: "Konten Publik",
+    items: [
+      { key: "berita", label: "Berita", icon: Newspaper, path: "/kelola/berita", crud: true },
+      { key: "galeri", label: "Galeri", icon: ImageIcon, path: "/kelola/galeri", crud: true },
+      { key: "download", label: "Download", icon: DownloadIcon, path: "/kelola/download", crud: true },
+      { key: "kurikulum", label: "Kurikulum", icon: BookMarked, path: "/kelola/kurikulum" },
+      { key: "beranda", label: "Testimoni & FAQ", icon: MessagesSquare, path: "/kelola/beranda" },
+      { key: "pendaftaran", label: "Pendaftaran", icon: Inbox, path: "/kelola/pendaftaran", crud: true },
+    ],
+  },
+  {
+    heading: "Sistem",
+    items: [
+      { key: "pengguna", label: "Manajemen Pengguna", icon: UserCog, path: "/kelola/pengguna", adminOnly: true },
+      { key: "akses", label: "Hak Akses Menu", icon: ShieldCheck, path: "/kelola/akses", adminOnly: true },
+      { key: "pengaturan", label: "Pengaturan Situs", icon: Settings, path: "/kelola/pengaturan", adminOnly: true },
+    ],
+  },
+];
+
+// Flat list of every menu item.
+export const ALL_MENU_ITEMS: MenuItem[] = MENU.flatMap((s) => s.items);
+
+// Items that an admin may grant to dosen/mahasiswa (everything except the
+// admin-only system menus, which lower roles never get).
+export const CONFIGURABLE_MENUS: MenuItem[] = ALL_MENU_ITEMS.filter((i) => !i.adminOnly);
+
+// Dashboard is always visible to every authenticated user, regardless of config.
+export const ALWAYS_ALLOWED: MenuKey[] = ["dashboard"];
+
+// Longest-path-first so "/kelola/ujian" wins over a hypothetical "/kelola".
+const ITEMS_BY_PATH_LEN = [...ALL_MENU_ITEMS].sort((a, b) => b.path.length - a.path.length);
+
+// Resolve a pathname to its owning menu key (for route guards / active state).
+export function menuKeyForPath(pathname: string): MenuKey | undefined {
+  return ITEMS_BY_PATH_LEN.find(
+    (i) => pathname === i.path || pathname.startsWith(i.path + "/"),
+  )?.key;
+}

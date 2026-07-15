@@ -15,8 +15,7 @@ import {
   useUpdateGaleri,
   useDeleteGaleri,
 } from "@/features/galeri/hooks/useGaleri";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Galeri, GaleriInput } from "@/lib/api/galeriApi";
 
@@ -28,8 +27,7 @@ export default function GaleriPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Galeri | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("galeri");
 
   const { data: rows = [], isLoading } = useGaleriList(search);
   const createMut = useCreateGaleri();

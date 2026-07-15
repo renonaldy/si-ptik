@@ -11,6 +11,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FileUploadField } from "@/components/shared/FileUploadField";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Microsoft, MicrosoftInput } from "@/lib/api/microsoftApi";
 
@@ -22,7 +23,7 @@ interface MicrosoftFormDialogProps {
   isPending: boolean;
 }
 
-const EMPTY: MicrosoftInput = { nama: "", email: "", jenis_pelatihan: "", tanggal_pelatihan: "" };
+const EMPTY: MicrosoftInput = { nama: "", npm: "", jenis_pelatihan: "", bukti_pembayaran: "" };
 
 function toInput(x: Microsoft): MicrosoftInput {
   const { id, created_at, updated_at, ...rest } = x;
@@ -86,9 +87,17 @@ export function MicrosoftFormDialog({ open, onOpenChange, initial, onSubmit, isP
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {field("email", "Email")}
+            {field("npm", "NPM")}
             {field("jenis_pelatihan", "Jenis Pelatihan")}
-            {field("tanggal_pelatihan", "Tanggal Pelatihan", { type: "date" })}
+            <div className="sm:col-span-2">
+              <FileUploadField
+                label="Bukti Pembayaran"
+                value={form.bukti_pembayaran}
+                onChange={(url) => setForm((f) => ({ ...f, bukti_pembayaran: url }))}
+                accept=".png,.jpg,.jpeg,.webp,.pdf"
+                hint="Unggah bukti pembayaran (gambar/PDF) atau tempel URL."
+              />
+            </div>
             </div>
           </div>
 

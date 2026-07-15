@@ -17,18 +17,18 @@ func NewMicrosoftRepository(pool *pgxpool.Pool) *MicrosoftRepository {
 	return &MicrosoftRepository{pool: pool}
 }
 
-const microsoftColumns = `id, nama, email, jenis_pelatihan, tanggal_pelatihan, created_at, updated_at`
+const microsoftColumns = `id, nama, npm, jenis_pelatihan, bukti_pembayaran, status, created_at, updated_at`
 
 func scanMicrosoft(row pgx.Row, x *microsoft.Microsoft) error {
-	return row.Scan(&x.ID, &x.Nama, &x.Email, &x.JenisPelatihan, &x.TanggalPelatihan, &x.CreatedAt, &x.UpdatedAt)
+	return row.Scan(&x.ID, &x.Nama, &x.NPM, &x.JenisPelatihan, &x.BuktiPembayaran, &x.Status, &x.CreatedAt, &x.UpdatedAt)
 }
 
 func (r *MicrosoftRepository) List(ctx context.Context, search string) ([]microsoft.Microsoft, error) {
 	rows, err := r.pool.Query(ctx, `
 		SELECT `+microsoftColumns+`
 		FROM microsofts
-		WHERE ($1 = '' OR nama ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
-		ORDER BY nama ASC
+		WHERE ($1 = '' OR nama ILIKE '%' || $1 || '%' OR npm ILIKE '%' || $1 || '%')
+		ORDER BY created_at DESC
 	`, search)
 	if err != nil {
 		return nil, fmt.Errorf("MicrosoftRepository.List: %w", err)
@@ -61,10 +61,10 @@ func (r *MicrosoftRepository) GetByID(ctx context.Context, id string) (*microsof
 func (r *MicrosoftRepository) Create(ctx context.Context, id string, in microsoft.Input) (*microsoft.Microsoft, error) {
 	var x microsoft.Microsoft
 	err := scanMicrosoft(r.pool.QueryRow(ctx, `
-		INSERT INTO microsofts (id, nama, email, jenis_pelatihan, tanggal_pelatihan)
+		INSERT INTO microsofts (id, nama, npm, jenis_pelatihan, bukti_pembayaran)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING `+microsoftColumns,
-		id, in.Nama, in.Email, in.JenisPelatihan, in.TanggalPelatihan,
+		id, in.Nama, in.NPM, in.JenisPelatihan, in.BuktiPembayaran,
 	), &x)
 	if err != nil {
 		return nil, fmt.Errorf("MicrosoftRepository.Create: %w", err)
@@ -75,13 +75,27 @@ func (r *MicrosoftRepository) Create(ctx context.Context, id string, in microsof
 func (r *MicrosoftRepository) Update(ctx context.Context, id string, in microsoft.Input) (*microsoft.Microsoft, error) {
 	var x microsoft.Microsoft
 	err := scanMicrosoft(r.pool.QueryRow(ctx, `
-		UPDATE microsofts SET nama=$2, email=$3, jenis_pelatihan=$4, tanggal_pelatihan=$5
+		UPDATE microsofts SET nama=$2, npm=$3, jenis_pelatihan=$4, bukti_pembayaran=$5
 		WHERE id=$1
 		RETURNING `+microsoftColumns,
-		id, in.Nama, in.Email, in.JenisPelatihan, in.TanggalPelatihan,
+		id, in.Nama, in.NPM, in.JenisPelatihan, in.BuktiPembayaran,
 	), &x)
 	if err != nil {
 		return nil, fmt.Errorf("MicrosoftRepository.Update: %w", err)
+	}
+	return &x, nil
+}
+
+func (r *MicrosoftRepository) UpdateStatus(ctx context.Context, id, status string) (*microsoft.Microsoft, error) {
+	var x microsoft.Microsoft
+	err := scanMicrosoft(r.pool.QueryRow(ctx, `
+		UPDATE microsofts SET status=$2
+		WHERE id=$1
+		RETURNING `+microsoftColumns,
+		id, status,
+	), &x)
+	if err != nil {
+		return nil, fmt.Errorf("MicrosoftRepository.UpdateStatus: %w", err)
 	}
 	return &x, nil
 }

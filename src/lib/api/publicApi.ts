@@ -36,3 +36,14 @@ export interface PendaftaranInput {
 }
 
 export const submitPendaftaran = (input: PendaftaranInput) => api.post<unknown>("/public/pendaftaran", input);
+
+// Public "Pelatihan Microsoft" registration (no auth). Awaits admin approval.
+export interface PelatihanMicrosoftInput {
+  nama: string;
+  npm: string;
+  jenis_pelatihan: string;
+  bukti_pembayaran: string; // URL from the public upload endpoint
+}
+
+export const submitPelatihanMicrosoft = (input: PelatihanMicrosoftInput) =>
+  api.post<unknown>("/public/pelatihan-microsoft", input);

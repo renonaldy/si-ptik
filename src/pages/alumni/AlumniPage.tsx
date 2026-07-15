@@ -15,8 +15,7 @@ import {
   useUpdateAlumni,
   useDeleteAlumni,
 } from "@/features/alumni/hooks/useAlumni";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Alumni, AlumniInput } from "@/lib/api/alumniApi";
 
@@ -28,8 +27,7 @@ export default function AlumniPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Alumni | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("alumni");
 
   const { data: rows = [], isLoading } = useAlumniList(search);
   const createMut = useCreateAlumni();
