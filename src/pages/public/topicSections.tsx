@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useSiteContent } from "@/features/content/useSiteContent";
 import { listDosenPublic, type DosenPublic } from "@/lib/api/publicApi";
 
@@ -335,7 +336,7 @@ export const TENTANG_TOPICS: Record<string, Topic> = {
           {get("profil_logo", "") ? (
             <img src={get("profil_logo", "")} alt="Logo Program Studi PTIK" className="max-h-44 w-auto object-contain" />
           ) : (
-            <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-fuchsia-500 text-4xl font-bold text-white">P</div>
+            <BrandLogo className="max-h-44 w-auto" />
           )}
         </div>
         <div className="space-y-3 text-muted-foreground">

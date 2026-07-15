@@ -15,8 +15,7 @@ import {
   useUpdateWisudawan,
   useDeleteWisudawan,
 } from "@/features/wisudawan/hooks/useWisudawan";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Wisudawan, WisudawanInput } from "@/lib/api/wisudawanApi";
 
@@ -28,8 +27,7 @@ export default function WisudawanPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Wisudawan | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("wisudawan");
 
   const { data: rows = [], isLoading } = useWisudawanList(search);
   const createMut = useCreateWisudawan();

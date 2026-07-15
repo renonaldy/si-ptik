@@ -1,17 +1,20 @@
 import { api } from "./client";
 
 // Domain type is colocated with its API module (flow-connect convention).
+export type MicrosoftStatus = "pending" | "approved" | "rejected";
+
 export interface Microsoft {
   id: string;
   nama: string;
-  email: string;
+  npm: string;
   jenis_pelatihan: string;
-  tanggal_pelatihan: string;
+  bukti_pembayaran: string;
+  status: MicrosoftStatus;
   created_at: string;
   updated_at: string;
 }
 
-export type MicrosoftInput = Omit<Microsoft, "id" | "created_at" | "updated_at">;
+export type MicrosoftInput = Pick<Microsoft, "nama" | "npm" | "jenis_pelatihan" | "bukti_pembayaran">;
 
 export function listMicrosoft(search?: string) {
   const qs = search ? `?search=${encodeURIComponent(search)}` : "";
@@ -25,6 +28,9 @@ export function createMicrosoft(input: MicrosoftInput) {
 }
 export function updateMicrosoft(id: string, input: MicrosoftInput) {
   return api.put<Microsoft>(`/microsoft/${encodeURIComponent(id)}`, input);
+}
+export function updateMicrosoftStatus(id: string, status: MicrosoftStatus) {
+  return api.patch<Microsoft>(`/microsoft/${encodeURIComponent(id)}/status`, { status });
 }
 export function deleteMicrosoft(id: string) {
   return api.delete<void>(`/microsoft/${encodeURIComponent(id)}`);

@@ -15,8 +15,7 @@ import {
   useUpdatePendaftaran,
   useDeletePendaftaran,
 } from "@/features/pendaftaran/hooks/usePendaftaran";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Pendaftaran, PendaftaranInput } from "@/lib/api/pendaftaranApi";
 
@@ -28,8 +27,7 @@ export default function PendaftaranPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Pendaftaran | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("pendaftaran");
 
   const { data: rows = [], isLoading } = usePendaftaranList(search);
   const createMut = useCreatePendaftaran();

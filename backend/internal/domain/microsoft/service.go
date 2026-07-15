@@ -24,7 +24,7 @@ func (s *Service) Get(ctx context.Context, id string) (*Microsoft, error) {
 		return nil, fmt.Errorf("microsoft.Service.Get: %w", err)
 	}
 	if x == nil {
-		return nil, apperror.New(apperror.CodeNotFound, "pelatihan microsoft tidak ditemukan")
+		return nil, apperror.New(apperror.CodeNotFound, "pendaftaran pelatihan tidak ditemukan")
 	}
 	return x, nil
 }
@@ -49,11 +49,34 @@ func (s *Service) Update(ctx context.Context, id string, in Input) (*Microsoft, 
 		return nil, fmt.Errorf("microsoft.Service.Update: %w", err)
 	}
 	if existing == nil {
-		return nil, apperror.New(apperror.CodeNotFound, "pelatihan microsoft tidak ditemukan")
+		return nil, apperror.New(apperror.CodeNotFound, "pendaftaran pelatihan tidak ditemukan")
 	}
 	x, err := s.repo.Update(ctx, id, normalize(in))
 	if err != nil {
 		return nil, fmt.Errorf("microsoft.Service.Update: %w", err)
+	}
+	return x, nil
+}
+
+// UpdateStatus approves/rejects (or resets) a registration. Restricted to admin
+// roles at the routing layer (WriteGuard).
+func (s *Service) UpdateStatus(ctx context.Context, id, status string) (*Microsoft, error) {
+	status = strings.ToLower(strings.TrimSpace(status))
+	switch status {
+	case StatusPending, StatusApproved, StatusRejected:
+	default:
+		return nil, apperror.New(apperror.CodeValidation, "status tidak valid")
+	}
+	existing, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("microsoft.Service.UpdateStatus: %w", err)
+	}
+	if existing == nil {
+		return nil, apperror.New(apperror.CodeNotFound, "pendaftaran pelatihan tidak ditemukan")
+	}
+	x, err := s.repo.UpdateStatus(ctx, id, status)
+	if err != nil {
+		return nil, fmt.Errorf("microsoft.Service.UpdateStatus: %w", err)
 	}
 	return x, nil
 }
@@ -69,13 +92,16 @@ func validate(in Input) error {
 	if strings.TrimSpace(in.Nama) == "" {
 		return apperror.New(apperror.CodeValidation, "nama wajib diisi")
 	}
+	if strings.TrimSpace(in.NPM) == "" {
+		return apperror.New(apperror.CodeValidation, "npm wajib diisi")
+	}
 	return nil
 }
 
 func normalize(in Input) Input {
 	in.Nama = strings.TrimSpace(in.Nama)
-	in.Email = strings.TrimSpace(in.Email)
+	in.NPM = strings.TrimSpace(in.NPM)
 	in.JenisPelatihan = strings.TrimSpace(in.JenisPelatihan)
-	in.TanggalPelatihan = strings.TrimSpace(in.TanggalPelatihan)
+	in.BuktiPembayaran = strings.TrimSpace(in.BuktiPembayaran)
 	return in
 }

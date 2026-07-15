@@ -15,8 +15,7 @@ import {
   useUpdateDownload,
   useDeleteDownload,
 } from "@/features/download/hooks/useDownload";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Download, DownloadInput } from "@/lib/api/downloadApi";
 
@@ -28,8 +27,7 @@ export default function DownloadPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Download | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("download");
 
   const { data: rows = [], isLoading } = useDownloadList(search);
   const createMut = useCreateDownload();

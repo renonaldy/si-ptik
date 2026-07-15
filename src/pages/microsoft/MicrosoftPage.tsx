@@ -13,12 +13,14 @@ import {
   useMicrosoftList,
   useCreateMicrosoft,
   useUpdateMicrosoft,
+  useUpdateMicrosoftStatus,
   useDeleteMicrosoft,
 } from "@/features/microsoft/hooks/useMicrosoft";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { useMe } from "@/features/auth/useMe";
 import { canManage } from "@/features/auth/permissions";
 import { accentStyle } from "@/lib/moduleColors";
-import type { Microsoft, MicrosoftInput } from "@/lib/api/microsoftApi";
+import type { Microsoft, MicrosoftInput, MicrosoftStatus } from "@/lib/api/microsoftApi";
 
 const PAGE_SIZE = 10;
 
@@ -28,12 +30,14 @@ export default function MicrosoftPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Microsoft | null>(null);
 
+  const manage = useCanWrite("microsoft");
   const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const canApprove = canManage(me?.role); // approval is admin/super_admin only
 
   const { data: rows = [], isLoading } = useMicrosoftList(search);
   const createMut = useCreateMicrosoft();
   const updateMut = useUpdateMicrosoft();
+  const statusMut = useUpdateMicrosoftStatus();
   const deleteMut = useDeleteMicrosoft();
 
   useEffect(() => {
@@ -69,15 +73,22 @@ export default function MicrosoftPage() {
     }
   };
 
+  const handleSetStatus = (x: Microsoft, status: MicrosoftStatus) => {
+    const verb = status === "approved" ? "menyetujui" : "menolak";
+    if (window.confirm(`Yakin ingin ${verb} pendaftaran ${x.nama}?`)) {
+      statusMut.mutate({ id: x.id, status });
+    }
+  };
+
   return (
     <AppLayout title="Pelatihan Microsoft">
       <ListHeader
         accentKey="microsoft"
         icon={Laptop}
         title="Pelatihan Microsoft"
-        description="Kelola data pelatihan microsoft Program Studi PTIK."
+        description="Kelola pendaftaran pelatihan Microsoft dan setujui peserta."
         count={rows.length}
-        countLabel="Total Pelatihan"
+        countLabel="Total Pendaftar"
       >
         {manage && (
           <Button onClick={openCreate}>
@@ -88,7 +99,7 @@ export default function MicrosoftPage() {
 
       <div style={accentStyle("microsoft")} className="card-hairline overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
         <div className="flex flex-col gap-3 border-b border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <SearchBar value={search} onChange={setSearch} placeholder="Cari nama atau email…" />
+          <SearchBar value={search} onChange={setSearch} placeholder="Cari nama atau NPM…" />
           <span className="shrink-0 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">{rows.length} data</span>
         </div>
 
@@ -103,7 +114,7 @@ export default function MicrosoftPage() {
           />
         ) : (
           <>
-            <MicrosoftTable data={paged} canManage={manage} onEdit={openEdit} onDelete={handleDelete} />
+            <MicrosoftTable data={paged} canManage={manage} canApprove={canApprove} onEdit={openEdit} onDelete={handleDelete} onSetStatus={handleSetStatus} />
             <Pagination page={page} pageCount={pageCount} onPage={setPage} />
           </>
         )}

@@ -15,6 +15,7 @@ import (
 	"ptik/internal/domain/dosen"
 	"ptik/internal/domain/download"
 	"ptik/internal/domain/galeri"
+	"ptik/internal/domain/menuaccess"
 	"ptik/internal/domain/microsoft"
 	"ptik/internal/domain/penelitian"
 	"ptik/internal/domain/sempro"
@@ -50,8 +51,8 @@ func main() {
 
 	// ── Users (with roles) ──
 	userRepo := pgRepo.NewUserRepository(pool)
-	seedUser(ctx, userRepo, getEnv("SEED_ADMIN_EMAIL", "admin@ptik.id"), getEnv("SEED_ADMIN_PASSWORD", "admin12345"), "Administrator PTIK", "super_admin")
 	seedUser(ctx, userRepo, "superadmin@ptik.id", "reno28", "Renonaldy Pratama D", "super_admin")
+	seedUser(ctx, userRepo, getEnv("SEED_ADMIN_EMAIL", "admin@ptik.id"), getEnv("SEED_ADMIN_PASSWORD", "admin12345"), "Administrator PTIK", "admin")
 	seedUser(ctx, userRepo, "dosen@ptik.id", "dosen12345", "Dr. Andi Wijaya, M.Kom", "dosen")
 	seedUser(ctx, userRepo, "mahasiswa@ptik.id", "mahasiswa12345", "Rizky Pratama", "mahasiswa")
 
@@ -96,7 +97,7 @@ func main() {
 	}
 	if empty(ctx, pool, "microsofts") {
 		r := pgRepo.NewMicrosoftRepository(pool)
-		must(r.Create(ctx, id("microsoft"), microsoft.Input{Nama: "Hadi Kusuma", Email: "hadi@ptik.id", JenisPelatihan: "Microsoft Excel", TanggalPelatihan: "2024-06-06"}))
+		must(r.Create(ctx, id("microsoft"), microsoft.Input{Nama: "Hadi Kusuma", NPM: "2101010007", JenisPelatihan: "Microsoft Excel", BuktiPembayaran: ""}))
 	}
 	if empty(ctx, pool, "beritas") {
 		r := pgRepo.NewBeritaRepository(pool)
@@ -161,6 +162,22 @@ func main() {
 			}
 		}
 		slog.Info("seed: site content created", "count", len(defaults))
+	}
+
+	// ── Default sidebar access for the configurable roles ──
+	if empty(ctx, pool, "role_menus") {
+		r := pgRepo.NewMenuAccessRepository(pool)
+		defaults := []menuaccess.Item{
+			{Role: "dosen", MenuKeys: []string{"dashboard", "dosen", "penelitian", "skripsi", "sempro", "ujian", "wisudawan"}},
+			{Role: "mahasiswa", MenuKeys: []string{"dashboard", "ujian", "berita", "galeri", "download"}},
+		}
+		for _, it := range defaults {
+			if err := r.Upsert(ctx, it.Role, it.MenuKeys, it.WriteKeys); err != nil {
+				slog.Error("seed: role menu failed", "err", err)
+				os.Exit(1)
+			}
+		}
+		slog.Info("seed: role menus created", "count", len(defaults))
 	}
 
 	slog.Info("seed: done")

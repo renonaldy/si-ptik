@@ -21,3 +21,16 @@ export async function uploadFile(file: File): Promise<UploadResult> {
   }
   return body.data as UploadResult;
 }
+
+// Public (no-auth) upload — used by public forms (e.g. bukti pembayaran on the
+// Pelatihan Microsoft registration). Hits /public/upload which has no auth guard.
+export async function uploadFilePublic(file: File): Promise<UploadResult> {
+  const fd = new FormData();
+  fd.append("file", file);
+  const res = await fetch(`${API_BASE}/public/upload`, { method: "POST", body: fd });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body?.error?.message ?? "Gagal mengunggah file");
+  }
+  return body.data as UploadResult;
+}

@@ -5,8 +5,10 @@ import {
   listMicrosoft,
   createMicrosoft,
   updateMicrosoft,
+  updateMicrosoftStatus,
   deleteMicrosoft,
   type MicrosoftInput,
+  type MicrosoftStatus,
 } from "@/lib/api/microsoftApi";
 
 const KEY = ["microsoft"];
@@ -39,6 +41,20 @@ export function useUpdateMicrosoft() {
       toast.success("Data berhasil diperbarui");
     },
     onError: (e: Error) => toast.error(e.message || "Gagal memperbarui data"),
+  });
+}
+
+export function useUpdateMicrosoftStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: MicrosoftStatus }) => updateMicrosoftStatus(id, status),
+    onSuccess: (_data, { status }) => {
+      qc.invalidateQueries({ queryKey: KEY });
+      toast.success(
+        status === "approved" ? "Pendaftaran disetujui" : status === "rejected" ? "Pendaftaran ditolak" : "Status diperbarui",
+      );
+    },
+    onError: (e: Error) => toast.error(e.message || "Gagal memperbarui status"),
   });
 }
 

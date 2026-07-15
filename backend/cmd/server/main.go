@@ -20,6 +20,7 @@ import (
 	"ptik/internal/domain/dosen"
 	"ptik/internal/domain/download"
 	"ptik/internal/domain/galeri"
+	"ptik/internal/domain/menuaccess"
 	"ptik/internal/domain/microsoft"
 	"ptik/internal/domain/pendaftaran"
 	"ptik/internal/domain/penelitian"
@@ -98,6 +99,7 @@ func main() {
 	pendaftaranRepo := pgRepo.NewPendaftaranRepository(pool)
 	contentRepo := pgRepo.NewContentRepository(pool)
 	ujianRepo := pgRepo.NewUjianRepository(pool)
+	menuAccessRepo := pgRepo.NewMenuAccessRepository(pool)
 
 	// ── Services ──
 	userSvc := user.NewService(userRepo)
@@ -118,6 +120,7 @@ func main() {
 	downloadSvc := download.NewService(downloadRepo)
 	pendaftaranSvc := pendaftaran.NewService(pendaftaranRepo)
 	contentSvc := content.NewService(contentRepo)
+	menuAccessSvc := menuaccess.NewService(menuAccessRepo)
 
 	// ── Handlers ──
 	authHandler := handler.NewAuthHandler(authSvc)
@@ -138,6 +141,7 @@ func main() {
 	pendaftaranHandler := handler.NewPendaftaranHandler(pendaftaranSvc)
 	contentHandler := handler.NewContentHandler(contentSvc)
 	ujianHandler := handler.NewUjianHandler(ujianSvc)
+	menuAccessHandler := handler.NewMenuAccessHandler(menuAccessSvc)
 	uploadHandler := handler.NewUploadHandler(cfg.UploadDir, cfg.PublicBaseURL)
 
 	// ── Router ──
@@ -178,14 +182,23 @@ func main() {
 			r.Get("/content", contentHandler.List)
 			r.Get("/ujian", ujianHandler.List)
 			r.Get("/ujian/{id}", ujianHandler.Get)
-			r.Post("/pendaftaran", pendaftaranHandler.Create) // Daftar / Kontak forms
+			r.Post("/pendaftaran", pendaftaranHandler.Create)          // Daftar / Kontak forms
+			r.Post("/pelatihan-microsoft", microsoftHandler.PublicCreate) // public training registration
+			r.Post("/upload", uploadHandler.Upload)                    // public upload (e.g. bukti pembayaran)
 		})
 
-		// Protected — requires a valid access token.
-		// Reads open to any authenticated user; writes require an admin role (WriteGuard).
+		// Protected — requires a valid access token. Reads are open to any
+		// authenticated user; writes need an admin role OR a per-menu CRUD grant
+		// (dosen/mahasiswa), resolved from the menu-access config by CRUDGuard.
+		canWrite := func(ctx context.Context, role, menuKey string) (bool, error) {
+			if menuKey == "upload" { // shared endpoint: allow if the role can write anything
+				return menuAccessSvc.HasAnyWrite(ctx, role)
+			}
+			return menuAccessSvc.CanWrite(ctx, role, menuKey)
+		}
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.Authenticate)
-			r.Use(mw.WriteGuard("super_admin", "admin"))
+			r.Use(mw.CRUDGuard([]string{"super_admin", "admin"}, canWrite))
 			r.Route("/users", userHandler.Routes)
 			r.Post("/upload", uploadHandler.Upload)
 			r.Route("/dosen", dosenHandler.Routes)
@@ -204,6 +217,7 @@ func main() {
 			r.Route("/pendaftaran", pendaftaranHandler.Routes)
 			r.Route("/content", contentHandler.Routes)
 			r.Route("/ujian", ujianHandler.Routes)
+			r.Route("/menu-access", menuAccessHandler.Routes)
 		})
 	})
 

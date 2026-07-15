@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { GraduationCap, ArrowRight, BookOpen, Users, FlaskConical, Award } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 const HIGHLIGHTS = [
   { icon: GraduationCap, title: "Dosen Berkualitas", desc: "Tenaga pengajar bersertifikasi dan berpengalaman." },
@@ -14,9 +15,7 @@ function PublicNav() {
   return (
     <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet-500 text-sm font-bold text-primary-foreground">
-          P
-        </div>
+        <BrandLogo className="h-10 w-10" />
         <span className="text-base font-bold text-foreground">SI PTIK</span>
       </div>
       <nav className="flex items-center gap-2">

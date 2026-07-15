@@ -15,8 +15,7 @@ import {
   useUpdateDosen,
   useDeleteDosen,
 } from "@/features/dosen/hooks/useDosen";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Dosen, DosenInput } from "@/lib/api/dosenApi";
 
@@ -28,8 +27,7 @@ export default function DosenPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Dosen | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("dosen");
 
   const { data: rows = [], isLoading } = useDosenList(search);
   const createMut = useCreateDosen();

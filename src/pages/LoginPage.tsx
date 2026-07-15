@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sparkline } from "@/components/shared/Sparkline";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useLogin, getStoredToken } from "@/features/auth/useAuth";
 import { accentStyle, type ModuleKey } from "@/lib/moduleColors";
 
@@ -54,8 +55,8 @@ export default function LoginPage() {
 
         {/* Brand lockup */}
         <div className="relative flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold ring-1 ring-white/20 backdrop-blur">
-            P
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 p-1.5 ring-1 ring-white/20 backdrop-blur">
+            <BrandLogo className="h-full w-full" />
           </div>
           <div className="leading-tight">
             <div className="text-base font-bold">SI PTIK</div>
@@ -101,9 +102,7 @@ export default function LoginPage() {
       <div className="relative flex items-center justify-center bg-app-aurora px-6 py-12">
         <div className="w-full max-w-[400px]">
           <div className="mb-6 flex justify-center lg:hidden">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet-500 text-lg font-bold text-primary-foreground">
-              P
-            </div>
+            <BrandLogo className="h-14 w-14" />
           </div>
 
           <div className="card-hairline rounded-2xl border border-border bg-card/70 p-8 shadow-soft-lg backdrop-blur-sm">

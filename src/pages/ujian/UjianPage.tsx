@@ -10,8 +10,7 @@ import { Pagination } from "@/components/shared/Pagination";
 import { UjianTable } from "@/components/ujian/UjianTable";
 import { UjianFormDialog } from "@/components/ujian/UjianFormDialog";
 import { useUjianList, useCreateUjian, useUpdateUjian, useDeleteUjian } from "@/features/ujian/hooks/useUjian";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { useMinuteTick } from "@/hooks/useMinuteTick";
 import { accentStyle } from "@/lib/moduleColors";
 import type { Ujian, UjianInput } from "@/lib/api/ujianApi";
@@ -25,8 +24,7 @@ export default function UjianPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Ujian | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("ujian");
 
   const { data: rows = [], isLoading } = useUjianList(search);
   const createMut = useCreateUjian();

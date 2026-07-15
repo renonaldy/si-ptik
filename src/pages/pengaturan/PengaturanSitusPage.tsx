@@ -10,11 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUploadField } from "@/components/shared/FileUploadField";
 import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { canManage, isSuperAdmin } from "@/features/auth/permissions";
 import { listContent, saveContent, type ContentItem } from "@/lib/api/contentApi";
 import { cn } from "@/lib/utils";
-
-const SUPERADMIN_EMAIL = "superadmin@ptik.id";
 
 type Field = { key: string; label: string; kind: "input" | "textarea" | "upload"; hint?: string; accept?: string };
 type Group = { heading: string; icon: typeof Home; fields: Field[] };
@@ -110,7 +108,7 @@ export default function PengaturanSitusPage() {
   const qc = useQueryClient();
   const { data: me } = useMe();
   const manage = canManage(me?.role);
-  const isSuper = me?.email === SUPERADMIN_EMAIL;
+  const isSuper = isSuperAdmin(me?.role);
   const [form, setForm] = useState<Record<string, string>>({});
   const [open, setOpen] = useState<Record<string, boolean>>({}); // collapsed by default
   const [sysVer, setSysVer] = useState("");
@@ -245,7 +243,7 @@ export default function PengaturanSitusPage() {
                 <div className="flex-1 space-y-1.5">
                   <Label htmlFor="system_version">Versi Sistem</Label>
                   <Input id="system_version" value={sysVer} onChange={(e) => setSysVer(e.target.value)} placeholder="1.0" />
-                  <p className="text-xs text-muted-foreground">Tampil di sidebar admin. Hanya dapat diubah oleh Super Admin ({SUPERADMIN_EMAIL}).</p>
+                  <p className="text-xs text-muted-foreground">Tampil di sidebar Super Admin. Hanya Super Admin yang dapat mengubahnya.</p>
                 </div>
                 <Button onClick={() => saveVer.mutate()} disabled={saveVer.isPending}>
                   <Save className="mr-1.5 h-4 w-4" /> {saveVer.isPending ? "Menyimpan…" : "Simpan Versi"}

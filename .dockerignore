@@ -5,3 +5,6 @@ dist
 .env.*
 *.local
 .DS_Store
+# The Go backend has its own build context (./backend); exclude it from the
+# frontend (Dockerfile.web) build to keep that context small.
+backend

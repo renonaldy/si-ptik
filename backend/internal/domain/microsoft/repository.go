@@ -7,5 +7,6 @@ type Repository interface {
 	GetByID(ctx context.Context, id string) (*Microsoft, error)
 	Create(ctx context.Context, id string, in Input) (*Microsoft, error)
 	Update(ctx context.Context, id string, in Input) (*Microsoft, error)
+	UpdateStatus(ctx context.Context, id, status string) (*Microsoft, error)
 	Delete(ctx context.Context, id string) error
 }

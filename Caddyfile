@@ -1,0 +1,30 @@
+# Caddy edge server — serves the React SPA and reverse-proxies the API.
+# Auto-HTTPS (Let's Encrypt) is handled by Caddy as long as SITE_ADDRESS is a
+# real domain whose DNS points at this server and ports 80/443 are reachable.
+#
+# Values come from environment variables set in docker-compose.prod.yml (.env):
+#   SITE_ADDRESS  e.g. "ptik-bunghatta.com, www.ptik-bunghatta.com"
+#   ACME_EMAIL    e.g. "admin@ptik-bunghatta.com"  (Let's Encrypt notifications)
+#   API_UPSTREAM  defaults to "api:8080" (the Go backend on the internal network)
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS} {
+	encode gzip zstd
+
+	# --- API, health check, and uploaded files go to the Go backend ---
+	reverse_proxy /api/* {$API_UPSTREAM:api:8080}
+	reverse_proxy /healthz {$API_UPSTREAM:api:8080}
+	reverse_proxy /uploads/* {$API_UPSTREAM:api:8080}
+
+	# --- Everything else is the static React app (SPA fallback) ---
+	root * /srv
+	try_files {path} /index.html
+	file_server
+
+	# Long-cache the hashed build assets
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+}

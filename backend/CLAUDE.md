@@ -80,6 +80,21 @@ make up             # docker compose: postgres + migrate + seed + api
 - **RBAC:** access tokens carry a `role` claim. `mw.WriteGuard("super_admin","admin")`
   wraps the protected group — any authenticated user may **read** (GET), but only admin
   roles may **write** (POST/PUT/PATCH/DELETE). `dosen`/`mahasiswa` are read-only.
+  `mw.RequireRole(...)` blocks **all** methods for non-listed roles (used to hide the
+  `/users` management API entirely from `dosen`/`mahasiswa`; `/users/me` stays open).
+- **User management (`/users`):** super_admin/admin only. `super_admin` may assign any
+  role; `admin` may only create/edit/delete `dosen`/`mahasiswa` (enforced in `user.Service`
+  via `canAssign`, not just the frontend). Password reset is `PUT /users/{id}/password`.
+- **Menu access (`/menu-access`):** per-role sidebar config for `dosen`/`mahasiswa`
+  (`role_menus` table, JSONB `menu_keys` = visible, `write_keys` = CRUD-allowed ⊆ `menu_keys`).
+  GET is readable by any authenticated user (a dosen needs its own config to render the sidebar
+  + know its rights); PUT is admin-gated.
+- **Per-menu write permission:** `mw.CRUDGuard(adminRoles, canWrite)` replaces the old blanket
+  `WriteGuard` on the protected group. Reads are always allowed; writes pass for admin roles,
+  else `canWrite(role, menuKey)` consults `menuaccess.Service.CanWrite` (menuKey = first path
+  segment, e.g. `/api/v1/dosen/x` → `dosen`). `/upload` is allowed if the role has any write
+  grant (`HasAnyWrite`). `/content`, `/users`, `/menu-access` are never in a lower role's
+  `write_keys`, so they stay admin-only.
 - **Token revocation:** refresh tokens are **opaque, stored hashed** in `refresh_tokens`
   (not stateless). Refresh rotates (revoke old + issue new); `POST /auth/logout` revokes.
 - **File upload:** `POST /api/v1/upload` (multipart, admin-only) saves to `UPLOAD_DIR`

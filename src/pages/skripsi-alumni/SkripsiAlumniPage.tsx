@@ -15,8 +15,7 @@ import {
   useUpdateSkripsiAlumni,
   useDeleteSkripsiAlumni,
 } from "@/features/skripsi-alumni/hooks/useSkripsiAlumni";
-import { useMe } from "@/features/auth/useMe";
-import { canManage } from "@/features/auth/permissions";
+import { useCanWrite } from "@/features/auth/useMenuPermissions";
 import { accentStyle } from "@/lib/moduleColors";
 import type { SkripsiAlumni, SkripsiAlumniInput } from "@/lib/api/skripsiAlumniApi";
 
@@ -28,8 +27,7 @@ export default function SkripsiAlumniPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SkripsiAlumni | null>(null);
 
-  const { data: me } = useMe();
-  const manage = canManage(me?.role);
+  const manage = useCanWrite("skripsi-alumni");
 
   const { data: rows = [], isLoading } = useSkripsiAlumniList(search);
   const createMut = useCreateSkripsiAlumni();
