@@ -15,6 +15,7 @@ export type ModuleKey =
   | "microsoft"
   | "berita"
   | "galeri"
+  | "promosi"
   | "download"
   | "pendaftaran"
   | "ujian"
@@ -33,6 +34,7 @@ export const MODULE_VAR: Record<ModuleKey, string> = {
   microsoft: "--m-microsoft",
   berita: "--m-berita",
   galeri: "--m-galeri",
+  promosi: "--m-promosi",
   download: "--m-download",
   pendaftaran: "--m-pendaftaran",
   ujian: "--m-ujian",

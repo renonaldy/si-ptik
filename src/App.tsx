@@ -19,6 +19,8 @@ import { TENTANG_TOPICS, AKADEMIK_TOPICS } from "./pages/public/topicSections";
 import BeritaPublicPage from "./pages/public/BeritaPublicPage";
 import BeritaDetailPage from "./pages/public/BeritaDetailPage";
 import GaleriPublicPage from "./pages/public/GaleriPublicPage";
+import PromosiFlyerPage from "./pages/public/PromosiFlyerPage";
+import PromosiVideoPage from "./pages/public/PromosiVideoPage";
 import VisiMisiPage from "./pages/public/VisiMisiPage";
 import KewirausahaanPage from "./pages/public/KewirausahaanPage";
 import PelatihanMicrosoftPage from "./pages/public/PelatihanMicrosoftPage";
@@ -47,6 +49,7 @@ import MicrosoftPage from "./pages/microsoft/MicrosoftPage";
 // Admin content modules
 import BeritaPage from "./pages/berita/BeritaPage";
 import GaleriPage from "./pages/galeri/GaleriPage";
+import PromosiPage from "./pages/promosi/PromosiPage";
 import DownloadPage from "./pages/download/DownloadPage";
 import PendaftaranPage from "./pages/pendaftaran/PendaftaranPage";
 import KurikulumPage from "./pages/kurikulum/KurikulumPage";
@@ -110,6 +113,8 @@ const App = () => {
               <Route path="/berita" element={<BeritaPublicPage />} />
               <Route path="/berita/:id" element={<BeritaDetailPage />} />
               <Route path="/galeri" element={<GaleriPublicPage />} />
+              <Route path="/promosi/flyer" element={<PromosiFlyerPage />} />
+              <Route path="/promosi/video" element={<PromosiVideoPage />} />
               <Route path="/visi-misi" element={<VisiMisiPage />} />
               <Route path="/akademik" element={<AkademikPage />} />
               <Route path="/akademik/ujian" element={<KegiatanUjianPage />} />
@@ -140,6 +145,7 @@ const App = () => {
                 <Route path="/kelola/ujian" element={<RouteAccess menu="ujian"><UjianPage /></RouteAccess>} />
                 <Route path="/kelola/berita" element={<RouteAccess menu="berita"><BeritaPage /></RouteAccess>} />
                 <Route path="/kelola/galeri" element={<RouteAccess menu="galeri"><GaleriPage /></RouteAccess>} />
+                <Route path="/kelola/promosi" element={<RouteAccess menu="promosi"><PromosiPage /></RouteAccess>} />
                 <Route path="/kelola/download" element={<RouteAccess menu="download"><DownloadPage /></RouteAccess>} />
                 <Route path="/kelola/pendaftaran" element={<RouteAccess menu="pendaftaran"><PendaftaranPage /></RouteAccess>} />
                 <Route path="/kelola/kurikulum" element={<RouteAccess menu="kurikulum"><KurikulumPage /></RouteAccess>} />

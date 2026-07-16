@@ -59,6 +59,15 @@ const NAV: NavEntry[] = [
       { label: "Hattatik", to: "https://hattatik.com/", external: true },
     ],
   },
+  {
+    type: "dropdown",
+    label: "Promosi",
+    base: "/promosi",
+    items: [
+      { label: "Flyer", to: "/promosi/flyer" },
+      { label: "Video Promosi", to: "/promosi/video" },
+    ],
+  },
   { type: "link", label: "Berita", to: "/berita" },
   { type: "link", label: "Galeri", to: "/galeri" },
   { type: "link", label: "Kontak", to: "/kontak" },
@@ -70,7 +79,9 @@ function Brand() {
       <BrandLogo className="h-10 w-10" />
       <div className="leading-tight">
         <div className="text-sm font-bold text-foreground">SI PTIK</div>
-        <div className="max-w-[13rem] text-[11px] leading-tight text-muted-foreground">Pendidikan Teknik Informatika dan Komputer</div>
+        {/* Hidden in the lg–xl band: with the wider nav pill the side column gets too
+            narrow there and the subtitle wraps one word per line. */}
+        <div className="max-w-[12rem] text-[11px] leading-tight text-muted-foreground lg:hidden xl:block">Pendidikan Teknik Informatika dan Komputer</div>
       </div>
     </Link>
   );
@@ -101,7 +112,7 @@ function DesktopNav({ onExternal }: { onExternal: (leaf: NavLeaf) => void }) {
 
   const chip = (active: boolean) =>
     cn(
-      "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+      "rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors",
       active
         ? "bg-background text-foreground shadow-sm"
         : "text-muted-foreground hover:text-primary",
@@ -139,7 +150,7 @@ function DesktopNav({ onExternal }: { onExternal: (leaf: NavLeaf) => void }) {
             >
               {item.label}
               <ChevronDown
-                className={cn("h-4 w-4 transition-transform", openKey === item.label && "rotate-180")}
+                className={cn("h-3.5 w-3.5 transition-transform", openKey === item.label && "rotate-180")}
               />
             </button>
             {openKey === item.label && (
@@ -236,7 +247,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-app-aurora">
       {/* ── Header ── */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 py-2 backdrop-blur lg:py-3">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 items-center gap-4 px-4 md:px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 items-center gap-4 px-4 md:px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-4">
           <div className="flex items-center">
             <Brand />
           </div>
@@ -379,6 +390,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                   <nav className="flex flex-col space-y-3 text-sm">
                     <Link to="/berita" className="transition hover:text-white">Berita</Link>
                     <Link to="/galeri" className="transition hover:text-white">Galeri</Link>
+                    <Link to="/promosi/flyer" className="transition hover:text-white">Promosi</Link>
                     <Link to="/visi-misi" className="transition hover:text-white">Visi & Misi</Link>
                     <Link to="/akademik" className="transition hover:text-white">Akademik</Link>
                   </nav>
