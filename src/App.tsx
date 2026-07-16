@@ -66,6 +66,10 @@ import ObeCpmkPage from "./pages/obe/ObeCpmkPage";
 import ObeMappingPage from "./pages/obe/ObeMappingPage";
 import ObeRpsPage from "./pages/obe/ObeRpsPage";
 import ObeLaporanPage from "./pages/obe/ObeLaporanPage";
+import ObeIkPage from "./pages/obe/ObeIkPage";
+import ObeAssessmentPage from "./pages/obe/ObeAssessmentPage";
+import ObeNilaiPage from "./pages/obe/ObeNilaiPage";
+import ObeAchievementPage from "./pages/obe/ObeAchievementPage";
 import NotFound from "./pages/NotFound";
 import { RouteAccess } from "./components/auth/RouteAccess";
 
@@ -153,9 +157,13 @@ const App = () => {
                 <Route path="/kelola/obe" element={<RouteAccess menu="obe"><ObeDashboardPage /></RouteAccess>} />
                 <Route path="/kelola/obe/kurikulum" element={<RouteAccess menu="obe-kurikulum"><ObeKurikulumPage /></RouteAccess>} />
                 <Route path="/kelola/obe/cpl" element={<RouteAccess menu="obe-cpl"><ObeCplPage /></RouteAccess>} />
+                <Route path="/kelola/obe/ik" element={<RouteAccess menu="obe-ik"><ObeIkPage /></RouteAccess>} />
                 <Route path="/kelola/obe/cpmk" element={<RouteAccess menu="obe-cpmk"><ObeCpmkPage /></RouteAccess>} />
                 <Route path="/kelola/obe/mapping" element={<RouteAccess menu="obe-mapping"><ObeMappingPage /></RouteAccess>} />
+                <Route path="/kelola/obe/assessment" element={<RouteAccess menu="obe-assessment"><ObeAssessmentPage /></RouteAccess>} />
                 <Route path="/kelola/obe/rps" element={<RouteAccess menu="obe-rps"><ObeRpsPage /></RouteAccess>} />
+                <Route path="/kelola/obe/nilai" element={<RouteAccess menu="obe-nilai"><ObeNilaiPage /></RouteAccess>} />
+                <Route path="/kelola/obe/achievement" element={<RouteAccess menu="obe-achievement"><ObeAchievementPage /></RouteAccess>} />
                 <Route path="/kelola/obe/laporan" element={<RouteAccess menu="obe-laporan"><ObeLaporanPage /></RouteAccess>} />
                 <Route path="/kelola/beranda" element={<RouteAccess menu="beranda"><KontenBerandaPage /></RouteAccess>} />
                 <Route path="/kelola/pengguna" element={<RouteAccess adminOnly><PenggunaPage /></RouteAccess>} />

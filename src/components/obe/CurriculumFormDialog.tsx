@@ -24,6 +24,7 @@ const EMPTY: CurriculumInput = {
   deskripsi: "",
   buku_url: "",
   struktur_url: "",
+  threshold: 70,
 };
 
 export function CurriculumFormDialog({ open, onOpenChange, initial, onSubmit, isPending }: Props) {
@@ -41,6 +42,7 @@ export function CurriculumFormDialog({ open, onOpenChange, initial, onSubmit, is
               deskripsi: initial.deskripsi,
               buku_url: initial.buku_url,
               struktur_url: initial.struktur_url,
+              threshold: initial.threshold || 70,
             }
           : EMPTY,
       );
@@ -73,9 +75,23 @@ export function CurriculumFormDialog({ open, onOpenChange, initial, onSubmit, is
           <Input id="c-sk" value={form.nomor_sk} onChange={(e) => setForm((f) => ({ ...f, nomor_sk: e.target.value }))} />
         </div>
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="c-tgl">Tanggal Berlaku</Label>
-        <Input id="c-tgl" type="date" value={form.tanggal_berlaku} onChange={(e) => setForm((f) => ({ ...f, tanggal_berlaku: e.target.value }))} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="c-tgl">Tanggal Berlaku</Label>
+          <Input id="c-tgl" type="date" value={form.tanggal_berlaku} onChange={(e) => setForm((f) => ({ ...f, tanggal_berlaku: e.target.value }))} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="c-threshold">Threshold Ketercapaian (%)</Label>
+          <Input
+            id="c-threshold"
+            type="number"
+            min={1}
+            max={100}
+            value={form.threshold}
+            onChange={(e) => setForm((f) => ({ ...f, threshold: Number(e.target.value) || 0 }))}
+          />
+          <p className="text-xs text-muted-foreground">Batas "Tercapai" untuk CPMK/CPL/IK (CPMK dengan Target sendiri memakai targetnya).</p>
+        </div>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="c-desk">Deskripsi</Label>

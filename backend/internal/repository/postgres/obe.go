@@ -17,10 +17,10 @@ func NewOBERepository(pool *pgxpool.Pool) *OBERepository { return &OBERepository
 
 // ─────────────────────────────── Curriculums ────────────────────────────────
 
-const curriculumCols = `id, nama, tahun, nomor_sk, tanggal_berlaku, is_active, deskripsi, buku_url, struktur_url, created_at, updated_at`
+const curriculumCols = `id, nama, tahun, nomor_sk, tanggal_berlaku, is_active, deskripsi, buku_url, struktur_url, threshold, created_at, updated_at`
 
 func scanCurriculum(row pgx.Row, c *obe.Curriculum) error {
-	return row.Scan(&c.ID, &c.Nama, &c.Tahun, &c.NomorSK, &c.TanggalBerlaku, &c.IsActive, &c.Deskripsi, &c.BukuURL, &c.StrukturURL, &c.CreatedAt, &c.UpdatedAt)
+	return row.Scan(&c.ID, &c.Nama, &c.Tahun, &c.NomorSK, &c.TanggalBerlaku, &c.IsActive, &c.Deskripsi, &c.BukuURL, &c.StrukturURL, &c.Threshold, &c.CreatedAt, &c.UpdatedAt)
 }
 
 func (r *OBERepository) ListCurriculums(ctx context.Context) ([]obe.Curriculum, error) {
@@ -67,10 +67,10 @@ func (r *OBERepository) GetActiveCurriculum(ctx context.Context) (*obe.Curriculu
 func (r *OBERepository) CreateCurriculum(ctx context.Context, id string, in obe.CurriculumInput) (*obe.Curriculum, error) {
 	var c obe.Curriculum
 	err := scanCurriculum(r.pool.QueryRow(ctx, `
-		INSERT INTO obe_curriculums (id, nama, tahun, nomor_sk, tanggal_berlaku, deskripsi, buku_url, struktur_url)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+		INSERT INTO obe_curriculums (id, nama, tahun, nomor_sk, tanggal_berlaku, deskripsi, buku_url, struktur_url, threshold)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
 		RETURNING `+curriculumCols,
-		id, in.Nama, in.Tahun, in.NomorSK, in.TanggalBerlaku, in.Deskripsi, in.BukuURL, in.StrukturURL,
+		id, in.Nama, in.Tahun, in.NomorSK, in.TanggalBerlaku, in.Deskripsi, in.BukuURL, in.StrukturURL, in.Threshold,
 	), &c)
 	if err != nil {
 		return nil, fmt.Errorf("OBERepository.CreateCurriculum: %w", err)
@@ -82,10 +82,10 @@ func (r *OBERepository) UpdateCurriculum(ctx context.Context, id string, in obe.
 	var c obe.Curriculum
 	err := scanCurriculum(r.pool.QueryRow(ctx, `
 		UPDATE obe_curriculums
-		SET nama=$2, tahun=$3, nomor_sk=$4, tanggal_berlaku=$5, deskripsi=$6, buku_url=$7, struktur_url=$8
+		SET nama=$2, tahun=$3, nomor_sk=$4, tanggal_berlaku=$5, deskripsi=$6, buku_url=$7, struktur_url=$8, threshold=$9
 		WHERE id=$1
 		RETURNING `+curriculumCols,
-		id, in.Nama, in.Tahun, in.NomorSK, in.TanggalBerlaku, in.Deskripsi, in.BukuURL, in.StrukturURL,
+		id, in.Nama, in.Tahun, in.NomorSK, in.TanggalBerlaku, in.Deskripsi, in.BukuURL, in.StrukturURL, in.Threshold,
 	), &c)
 	if err != nil {
 		return nil, fmt.Errorf("OBERepository.UpdateCurriculum: %w", err)

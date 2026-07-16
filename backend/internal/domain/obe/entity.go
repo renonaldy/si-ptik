@@ -21,6 +21,7 @@ type Curriculum struct {
 	Deskripsi      string    `json:"deskripsi"`
 	BukuURL        string    `json:"buku_url"`
 	StrukturURL    string    `json:"struktur_url"`
+	Threshold      int       `json:"threshold"` // default attainment threshold (%), used by the achievement engine
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
@@ -35,6 +36,7 @@ type CurriculumInput struct {
 	Deskripsi      string `json:"deskripsi"`
 	BukuURL        string `json:"buku_url"`
 	StrukturURL    string `json:"struktur_url"`
+	Threshold      int    `json:"threshold"` // 0 → service defaults to 70
 }
 
 // Course — a mata kuliah placed in a curriculum's semester (1..8).

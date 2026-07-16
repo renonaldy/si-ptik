@@ -104,6 +104,7 @@ func main() {
 	ujianRepo := pgRepo.NewUjianRepository(pool)
 	menuAccessRepo := pgRepo.NewMenuAccessRepository(pool)
 	obeRepo := pgRepo.NewOBERepository(pool)
+	obeAssessRepo := pgRepo.NewOBEAssessmentRepository(pool)
 
 	// ── Services ──
 	userSvc := user.NewService(userRepo)
@@ -127,6 +128,7 @@ func main() {
 	contentSvc := content.NewService(contentRepo)
 	menuAccessSvc := menuaccess.NewService(menuAccessRepo, userRepo)
 	obeSvc := obe.NewService(obeRepo)
+	obeAssessSvc := obe.NewAssessmentService(obeAssessRepo, obeRepo)
 
 	// ── Handlers ──
 	authHandler := handler.NewAuthHandler(authSvc)
@@ -150,6 +152,7 @@ func main() {
 	ujianHandler := handler.NewUjianHandler(ujianSvc)
 	menuAccessHandler := handler.NewMenuAccessHandler(menuAccessSvc)
 	obeHandler := handler.NewOBEHandler(obeSvc)
+	obeAssessHandler := handler.NewOBEAssessmentHandler(obeAssessSvc)
 	uploadHandler := handler.NewUploadHandler(cfg.UploadDir, cfg.PublicBaseURL)
 
 	// ── Router ──
@@ -234,7 +237,14 @@ func main() {
 			r.Route("/content", contentHandler.Routes)
 			r.Route("/ujian", ujianHandler.Routes)
 			r.Route("/menu-access", menuAccessHandler.Routes)
-			r.Route("/obe", obeHandler.Routes)
+			// OBE core + assessment share the /obe prefix (one "obe" CRUDGuard key);
+			// score entry lives at /obe-nilai so its writes can be granted to dosen
+			// per-account without opening the rest of the module.
+			r.Route("/obe", func(r chi.Router) {
+				obeHandler.Routes(r)
+				obeAssessHandler.Routes(r)
+			})
+			r.Route("/obe-nilai", obeAssessHandler.NilaiRoutes)
 		})
 	})
 
