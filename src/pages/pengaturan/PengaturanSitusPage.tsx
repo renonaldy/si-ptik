@@ -89,6 +89,16 @@ const GROUPS: Group[] = [
     fields: [{ key: "kewirausahaan_intro", label: "Deskripsi Singkat", kind: "textarea" }],
   },
   {
+    heading: "Kurikulum OBE (halaman publik)",
+    icon: GraduationCap,
+    fields: [
+      { key: "obe_pengertian", label: "Pengertian OBE", kind: "textarea" },
+      { key: "obe_tujuan", label: "Tujuan OBE", kind: "textarea", hint: "Satu poin per baris." },
+      { key: "obe_manfaat", label: "Manfaat OBE", kind: "textarea", hint: "Satu poin per baris." },
+      { key: "obe_peo", label: "Profil Lulusan (PEO)", kind: "textarea", hint: "Satu PEO per baris." },
+    ],
+  },
+  {
     heading: "Kontak",
     icon: Phone,
     fields: [

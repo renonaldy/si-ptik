@@ -263,7 +263,9 @@ export function PublicLayout({ children }: { children: ReactNode }) {
 
         {open && (
           <div className="border-t border-border bg-background lg:hidden">
-            <nav className="mx-auto flex max-w-6xl flex-col gap-0.5 px-4 py-3">
+            {/* max-h + overflow so long menus scroll inside the sticky header instead of
+                overflowing past the viewport (bottom items were unreachable on phones). */}
+            <nav className="mx-auto flex max-h-[calc(100dvh-3.75rem)] max-w-6xl flex-col gap-0.5 overflow-y-auto overscroll-contain scrollbar-thin px-4 py-3">
               {NAV.map((n) =>
                 n.type === "link" ? (
                   <NavLink

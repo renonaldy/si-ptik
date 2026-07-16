@@ -17,7 +17,8 @@ export type ModuleKey =
   | "galeri"
   | "download"
   | "pendaftaran"
-  | "ujian";
+  | "ujian"
+  | "obe";
 
 export const MODULE_VAR: Record<ModuleKey, string> = {
   dosen: "--m-dosen",
@@ -35,6 +36,7 @@ export const MODULE_VAR: Record<ModuleKey, string> = {
   download: "--m-download",
   pendaftaran: "--m-pendaftaran",
   ujian: "--m-ujian",
+  obe: "--m-obe",
 };
 
 // Hue-interleaved order so adjacent chart marks separate well.

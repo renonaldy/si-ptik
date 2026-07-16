@@ -51,6 +51,7 @@
     --m-download: 190 80% 38%;
     --m-pendaftaran: 130 52% 42%;
     --m-ujian: 245 75% 60%;
+    --m-obe: 250 74% 58%;
     /* Charts + atmosphere */
     --chart-grid: 270 15% 90%;
     --chart-axis: 270 6% 45%;
@@ -105,6 +106,7 @@
     --m-download: 190 80% 55%;
     --m-pendaftaran: 140 55% 58%;
     --m-ujian: 245 85% 76%;
+    --m-obe: 250 84% 76%;
     /* Charts + atmosphere (dark) */
     --chart-grid: 270 10% 22%;
     --chart-axis: 270 6% 60%;

@@ -55,6 +55,14 @@ import PengaturanSitusPage from "./pages/pengaturan/PengaturanSitusPage";
 import PenggunaPage from "./pages/pengguna/PenggunaPage";
 import AksesMenuPage from "./pages/akses/AksesMenuPage";
 import UjianPage from "./pages/ujian/UjianPage";
+// Kurikulum OBE module
+import ObeDashboardPage from "./pages/obe/ObeDashboardPage";
+import ObeKurikulumPage from "./pages/obe/ObeKurikulumPage";
+import ObeCplPage from "./pages/obe/ObeCplPage";
+import ObeCpmkPage from "./pages/obe/ObeCpmkPage";
+import ObeMappingPage from "./pages/obe/ObeMappingPage";
+import ObeRpsPage from "./pages/obe/ObeRpsPage";
+import ObeLaporanPage from "./pages/obe/ObeLaporanPage";
 import NotFound from "./pages/NotFound";
 import { RouteAccess } from "./components/auth/RouteAccess";
 
@@ -135,6 +143,14 @@ const App = () => {
                 <Route path="/kelola/download" element={<RouteAccess menu="download"><DownloadPage /></RouteAccess>} />
                 <Route path="/kelola/pendaftaran" element={<RouteAccess menu="pendaftaran"><PendaftaranPage /></RouteAccess>} />
                 <Route path="/kelola/kurikulum" element={<RouteAccess menu="kurikulum"><KurikulumPage /></RouteAccess>} />
+                {/* Kurikulum OBE — nested; RouteAccess menu keys mirror the sidebar */}
+                <Route path="/kelola/obe" element={<RouteAccess menu="obe"><ObeDashboardPage /></RouteAccess>} />
+                <Route path="/kelola/obe/kurikulum" element={<RouteAccess menu="obe-kurikulum"><ObeKurikulumPage /></RouteAccess>} />
+                <Route path="/kelola/obe/cpl" element={<RouteAccess menu="obe-cpl"><ObeCplPage /></RouteAccess>} />
+                <Route path="/kelola/obe/cpmk" element={<RouteAccess menu="obe-cpmk"><ObeCpmkPage /></RouteAccess>} />
+                <Route path="/kelola/obe/mapping" element={<RouteAccess menu="obe-mapping"><ObeMappingPage /></RouteAccess>} />
+                <Route path="/kelola/obe/rps" element={<RouteAccess menu="obe-rps"><ObeRpsPage /></RouteAccess>} />
+                <Route path="/kelola/obe/laporan" element={<RouteAccess menu="obe-laporan"><ObeLaporanPage /></RouteAccess>} />
                 <Route path="/kelola/beranda" element={<RouteAccess menu="beranda"><KontenBerandaPage /></RouteAccess>} />
                 <Route path="/kelola/pengguna" element={<RouteAccess adminOnly><PenggunaPage /></RouteAccess>} />
                 <Route path="/kelola/akses" element={<RouteAccess adminOnly><AksesMenuPage /></RouteAccess>} />

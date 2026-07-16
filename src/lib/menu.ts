@@ -19,6 +19,11 @@ import {
   MessagesSquare,
   UserCog,
   ShieldCheck,
+  Target,
+  ListChecks,
+  Grid3x3,
+  ClipboardList,
+  FileBarChart,
   type LucideIcon,
 } from "lucide-react";
 
@@ -46,7 +51,14 @@ export type MenuKey =
   | "pendaftaran"
   | "pengaturan"
   | "pengguna"
-  | "akses";
+  | "akses"
+  | "obe"
+  | "obe-kurikulum"
+  | "obe-cpl"
+  | "obe-cpmk"
+  | "obe-mapping"
+  | "obe-rps"
+  | "obe-laporan";
 
 export interface MenuItem {
   key: MenuKey;
@@ -94,6 +106,21 @@ export const MENU: MenuSection[] = [
   {
     heading: "Pelatihan",
     items: [{ key: "microsoft", label: "Pelatihan Microsoft", icon: Laptop, path: "/microsoft", crud: true }],
+  },
+  {
+    // Kurikulum OBE module. Writes on all /api/v1/obe/* are gated by the single
+    // backend menu key "obe"; the per-page keys below only control frontend
+    // visibility (so a dosen can be granted read of e.g. RPS + CPMK only).
+    heading: "Kurikulum OBE",
+    items: [
+      { key: "obe", label: "Dashboard OBE", icon: LayoutDashboard, path: "/kelola/obe" },
+      { key: "obe-kurikulum", label: "Kurikulum", icon: BookMarked, path: "/kelola/obe/kurikulum" },
+      { key: "obe-cpl", label: "CPL", icon: Target, path: "/kelola/obe/cpl" },
+      { key: "obe-cpmk", label: "CPMK", icon: ListChecks, path: "/kelola/obe/cpmk" },
+      { key: "obe-mapping", label: "Mapping CPL–CPMK", icon: Grid3x3, path: "/kelola/obe/mapping" },
+      { key: "obe-rps", label: "RPS", icon: ClipboardList, path: "/kelola/obe/rps" },
+      { key: "obe-laporan", label: "Laporan", icon: FileBarChart, path: "/kelola/obe/laporan" },
+    ],
   },
   {
     heading: "Konten Publik",
