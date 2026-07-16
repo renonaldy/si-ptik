@@ -70,7 +70,10 @@ Static public content (Beranda hero/stats, Visi & Misi, Akademik, Kewirausahaan,
 Visi-Misi, Kewirausahaan (IT Solution), Download, Kontak, Daftar (`AkademikPage` is public too).
 They read via `lib/api/publicApi.ts` (no-auth `/public/*`); Daftar & Kontak forms `submitPendaftaran`
 into the admin inbox. The **internal app** lives behind auth at `/dashboard` + domain routes;
-content domains `berita/galeri/download/pendaftaran` are managed at `/kelola/*` (sidebar "Konten Publik").
+content domains `berita/galeri/promosi/download/pendaftaran` are managed at `/kelola/*` (sidebar "Konten Publik").
+**Promosi** (`/promosi/flyer` + `/promosi/video`, navbar dropdown) holds flyers (uploaded image or
+Google Drive link; lightbox + download) and promo videos (upload / YouTube link / Google Drive link,
+file or folder) — resolved to a player/embed by `lib/videoEmbed.ts` (`videoEmbed`/`flyerMedia`).
 Login redirects to `/dashboard`.
 
 ## Design system (premium "Modern SaaS")

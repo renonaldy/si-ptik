@@ -13,6 +13,7 @@ import {
   Laptop,
   Newspaper,
   Image as ImageIcon,
+  Megaphone,
   Download as DownloadIcon,
   Inbox,
   Settings,
@@ -45,6 +46,7 @@ export type MenuKey =
   | "microsoft"
   | "berita"
   | "galeri"
+  | "promosi"
   | "download"
   | "kurikulum"
   | "beranda"
@@ -127,6 +129,7 @@ export const MENU: MenuSection[] = [
     items: [
       { key: "berita", label: "Berita", icon: Newspaper, path: "/kelola/berita", crud: true },
       { key: "galeri", label: "Galeri", icon: ImageIcon, path: "/kelola/galeri", crud: true },
+      { key: "promosi", label: "Promosi", icon: Megaphone, path: "/kelola/promosi", crud: true },
       { key: "download", label: "Download", icon: DownloadIcon, path: "/kelola/download", crud: true },
       { key: "kurikulum", label: "Kurikulum", icon: BookMarked, path: "/kelola/kurikulum" },
       { key: "beranda", label: "Testimoni & FAQ", icon: MessagesSquare, path: "/kelola/beranda" },

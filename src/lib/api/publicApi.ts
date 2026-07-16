@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type { Berita } from "./beritaApi";
 import type { Galeri } from "./galeriApi";
+import type { Promosi, PromosiTipe } from "./promosiApi";
 import type { Download } from "./downloadApi";
 import type { SiteContent } from "./contentApi";
 import type { Ujian } from "./ujianApi";
@@ -21,6 +22,8 @@ export const listBeritaPublic = () => api.get<Berita[]>("/public/berita");
 export const listDosenPublic = () => api.get<DosenPublic[]>("/public/dosen");
 export const getBeritaPublic = (id: string) => api.get<Berita>(`/public/berita/${encodeURIComponent(id)}`);
 export const listGaleriPublic = () => api.get<Galeri[]>("/public/galeri");
+export const listPromosiPublic = (tipe?: PromosiTipe) =>
+  api.get<Promosi[]>(`/public/promosi${tipe ? `?tipe=${tipe}` : ""}`);
 export const listDownloadPublic = () => api.get<Download[]>("/public/download");
 export const listContentPublic = () => api.get<SiteContent[]>("/public/content");
 export const listUjianPublic = () => api.get<Ujian[]>("/public/ujian");

@@ -99,7 +99,14 @@ make up             # docker compose: postgres + migrate + seed + api
   (not stateless). Refresh rotates (revoke old + issue new); `POST /auth/logout` revokes.
 - **File upload:** `POST /api/v1/upload` (multipart, admin-only) saves to `UPLOAD_DIR`
   (local disk) and returns a URL; files are served read-only at `/uploads/*`. Swap for
-  S3/MinIO in production by replacing `UploadHandler`.
+  S3/MinIO in production by replacing `UploadHandler`. Docs/images cap at 10MB; video
+  extensions (mp4/webm/mov/m4v, 100MB cap) are accepted only on the authenticated route
+  (`Upload(allowVideo)`) — the public `/public/upload` stays docs-only. Server read/write
+  timeouts are long (10m) so big uploads and `/uploads/*` video streaming survive slow links.
+- **Promosi (`/promosi`, public read `/public/promosi?tipe=flyer|video`):** flyer/video promo
+  content for the public site. `tipe` = `flyer`|`video`; `sumber` = `upload`|`gdrive` for
+  flyers, `upload`|`youtube`|`gdrive` for videos; `media` holds the URL (validated in
+  `promosi.Service`; empty flyer `sumber` normalizes to `upload`).
 
 ## Deliberate simplifications vs flow-connect
 

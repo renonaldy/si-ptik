@@ -17,6 +17,7 @@ import (
 	"ptik/internal/domain/galeri"
 	"ptik/internal/domain/microsoft"
 	"ptik/internal/domain/penelitian"
+	"ptik/internal/domain/promosi"
 	"ptik/internal/domain/sempro"
 	"ptik/internal/domain/skripsi"
 	"ptik/internal/domain/skripsialumni"
@@ -109,6 +110,11 @@ func main() {
 		must(r.Create(ctx, id("galeri"), galeri.Input{Judul: "Lab Komputer", Gambar: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800", Keterangan: "Fasilitas laboratorium komputer terbaru.", Tanggal: "2024-09-01"}))
 		must(r.Create(ctx, id("galeri"), galeri.Input{Judul: "Seminar Nasional", Gambar: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800", Keterangan: "Suasana seminar nasional teknologi.", Tanggal: "2024-08-15"}))
 		must(r.Create(ctx, id("galeri"), galeri.Input{Judul: "Workshop Coding", Gambar: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800", Keterangan: "Kegiatan workshop pemrograman mahasiswa.", Tanggal: "2024-07-10"}))
+	}
+	if empty(ctx, pool, "promosis") {
+		r := pgRepo.NewPromosiRepository(pool)
+		must(r.Create(ctx, id("promosi"), promosi.Input{Judul: "Flyer PMB 2025/2026", Tipe: "flyer", Media: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800", Keterangan: "Penerimaan mahasiswa baru program studi PTIK.", Tanggal: "2025-01-10"}))
+		must(r.Create(ctx, id("promosi"), promosi.Input{Judul: "Video Profil PTIK", Tipe: "video", Sumber: "youtube", Media: "https://www.youtube.com/watch?v=jNQXAC9IVRw", Keterangan: "Profil singkat program studi PTIK.", Tanggal: "2024-12-01"}))
 	}
 	if empty(ctx, pool, "downloads") {
 		r := pgRepo.NewDownloadRepository(pool)

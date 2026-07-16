@@ -25,6 +25,7 @@ import (
 	"ptik/internal/domain/obe"
 	"ptik/internal/domain/pendaftaran"
 	"ptik/internal/domain/penelitian"
+	"ptik/internal/domain/promosi"
 	"ptik/internal/domain/sempro"
 	"ptik/internal/domain/skripsi"
 	"ptik/internal/domain/skripsialumni"
@@ -96,6 +97,7 @@ func main() {
 	microsoftRepo := pgRepo.NewMicrosoftRepository(pool)
 	beritaRepo := pgRepo.NewBeritaRepository(pool)
 	galeriRepo := pgRepo.NewGaleriRepository(pool)
+	promosiRepo := pgRepo.NewPromosiRepository(pool)
 	downloadRepo := pgRepo.NewDownloadRepository(pool)
 	pendaftaranRepo := pgRepo.NewPendaftaranRepository(pool)
 	contentRepo := pgRepo.NewContentRepository(pool)
@@ -119,6 +121,7 @@ func main() {
 	microsoftSvc := microsoft.NewService(microsoftRepo)
 	beritaSvc := berita.NewService(beritaRepo)
 	galeriSvc := galeri.NewService(galeriRepo)
+	promosiSvc := promosi.NewService(promosiRepo)
 	downloadSvc := download.NewService(downloadRepo)
 	pendaftaranSvc := pendaftaran.NewService(pendaftaranRepo)
 	contentSvc := content.NewService(contentRepo)
@@ -140,6 +143,7 @@ func main() {
 	microsoftHandler := handler.NewMicrosoftHandler(microsoftSvc)
 	beritaHandler := handler.NewBeritaHandler(beritaSvc)
 	galeriHandler := handler.NewGaleriHandler(galeriSvc)
+	promosiHandler := handler.NewPromosiHandler(promosiSvc)
 	downloadHandler := handler.NewDownloadHandler(downloadSvc)
 	pendaftaranHandler := handler.NewPendaftaranHandler(pendaftaranSvc)
 	contentHandler := handler.NewContentHandler(contentSvc)
@@ -181,6 +185,7 @@ func main() {
 			r.Get("/berita", beritaHandler.List)
 			r.Get("/berita/{id}", beritaHandler.Get)
 			r.Get("/galeri", galeriHandler.List)
+			r.Get("/promosi", promosiHandler.List)
 			r.Get("/dosen", dosenHandler.PublicList)
 			r.Get("/download", downloadHandler.List)
 			r.Get("/content", contentHandler.List)
@@ -190,7 +195,7 @@ func main() {
 			r.Get("/pelatihan-microsoft", microsoftHandler.PublicList)    // public list of registrants
 			r.Post("/pelatihan-microsoft", microsoftHandler.PublicCreate) // public training registration
 			r.Get("/obe", obeHandler.PublicData)                       // active OBE curriculum (full tree)
-			r.Post("/upload", uploadHandler.Upload)                    // public upload (e.g. bukti pembayaran)
+			r.Post("/upload", uploadHandler.Upload(false))             // public upload (e.g. bukti pembayaran) — no video
 		})
 
 		// Protected — requires a valid access token. Reads are open to any
@@ -210,7 +215,7 @@ func main() {
 			r.Use(authMiddleware.Authenticate)
 			r.Use(mw.CRUDGuard([]string{"super_admin", "admin"}, canWrite))
 			r.Route("/users", userHandler.Routes)
-			r.Post("/upload", uploadHandler.Upload)
+			r.Post("/upload", uploadHandler.Upload(true)) // video allowed (promosi)
 			r.Route("/dosen", dosenHandler.Routes)
 			r.Route("/alumni", alumniHandler.Routes)
 			r.Route("/administrasi", administrasiHandler.Routes)
@@ -223,6 +228,7 @@ func main() {
 			r.Route("/microsoft", microsoftHandler.Routes)
 			r.Route("/berita", beritaHandler.Routes)
 			r.Route("/galeri", galeriHandler.Routes)
+			r.Route("/promosi", promosiHandler.Routes)
 			r.Route("/download", downloadHandler.Routes)
 			r.Route("/pendaftaran", pendaftaranHandler.Routes)
 			r.Route("/content", contentHandler.Routes)
@@ -234,11 +240,15 @@ func main() {
 
 	// ── Server + graceful shutdown ──
 	srv := &http.Server{
-		Addr:         ":" + cfg.Port,
-		Handler:      r,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		IdleTimeout:  120 * time.Second,
+		Addr:    ":" + cfg.Port,
+		Handler: r,
+		// Long read/write timeouts so 100MB video uploads and streaming
+		// playback from /uploads/* survive slow connections; slow-loris is
+		// still bounded by ReadHeaderTimeout.
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       10 * time.Minute,
+		WriteTimeout:      10 * time.Minute,
+		IdleTimeout:       120 * time.Second,
 	}
 	go func() {
 		slog.Info("server starting", "port", cfg.Port)
