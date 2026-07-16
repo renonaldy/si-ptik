@@ -530,6 +530,13 @@ func normalizeCurriculum(in CurriculumInput) CurriculumInput {
 	in.Deskripsi = strings.TrimSpace(in.Deskripsi)
 	in.BukuURL = strings.TrimSpace(in.BukuURL)
 	in.StrukturURL = strings.TrimSpace(in.StrukturURL)
+	// Attainment threshold defaults to 70% and is clamped to a sane range.
+	if in.Threshold <= 0 {
+		in.Threshold = 70
+	}
+	if in.Threshold > 100 {
+		in.Threshold = 100
+	}
 	return in
 }
 

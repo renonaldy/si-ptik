@@ -23,9 +23,14 @@ export default function ObeCpmkPage() {
   const { data: courses = [] } = useCourses(curriculumId);
   const [courseId, setCourseId] = useState("");
 
+  // Default to the first item, but never stomp a still-valid user selection.
   useEffect(() => {
-    setCourseId(courses[0]?.id ?? "");
-  }, [curriculumId, courses]);
+    if (courses.length === 0) {
+      if (courseId) setCourseId("");
+      return;
+    }
+    if (!courses.some((c) => c.id === courseId)) setCourseId(courses[0].id);
+  }, [courses, courseId]);
 
   const { data: rows = [], isLoading } = useCpmk({ courseId });
   const createMut = useCreateCpmk();

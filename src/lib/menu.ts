@@ -25,6 +25,9 @@ import {
   Grid3x3,
   ClipboardList,
   FileBarChart,
+  Crosshair,
+  ClipboardCheck as AssessmentIcon,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -57,9 +60,13 @@ export type MenuKey =
   | "obe"
   | "obe-kurikulum"
   | "obe-cpl"
+  | "obe-ik"
   | "obe-cpmk"
   | "obe-mapping"
+  | "obe-assessment"
   | "obe-rps"
+  | "obe-nilai"
+  | "obe-achievement"
   | "obe-laporan";
 
 export interface MenuItem {
@@ -118,9 +125,15 @@ export const MENU: MenuSection[] = [
       { key: "obe", label: "Dashboard OBE", icon: LayoutDashboard, path: "/kelola/obe" },
       { key: "obe-kurikulum", label: "Kurikulum", icon: BookMarked, path: "/kelola/obe/kurikulum" },
       { key: "obe-cpl", label: "CPL", icon: Target, path: "/kelola/obe/cpl" },
+      { key: "obe-ik", label: "Indikator Kinerja", icon: Crosshair, path: "/kelola/obe/ik" },
       { key: "obe-cpmk", label: "CPMK", icon: ListChecks, path: "/kelola/obe/cpmk" },
-      { key: "obe-mapping", label: "Mapping CPL–CPMK", icon: Grid3x3, path: "/kelola/obe/mapping" },
+      { key: "obe-mapping", label: "Mapping", icon: Grid3x3, path: "/kelola/obe/mapping" },
+      { key: "obe-assessment", label: "Assessment", icon: AssessmentIcon, path: "/kelola/obe/assessment" },
       { key: "obe-rps", label: "RPS", icon: ClipboardList, path: "/kelola/obe/rps" },
+      // crud: true → backend path /obe-nilai punya CRUDGuard key sendiri, jadi
+      // dosen bisa diberi hak input nilai tanpa hak tulis modul OBE lainnya.
+      { key: "obe-nilai", label: "Kelas & Nilai", icon: Users, path: "/kelola/obe/nilai", crud: true },
+      { key: "obe-achievement", label: "Achievement", icon: TrendingUp, path: "/kelola/obe/achievement" },
       { key: "obe-laporan", label: "Laporan", icon: FileBarChart, path: "/kelola/obe/laporan" },
     ],
   },
