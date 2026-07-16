@@ -1,15 +1,12 @@
-# ── Build the React app ──
-# No VITE_API_URL is passed, so the client falls back to same-origin `/api/v1`
-# (see src/lib/api/config.ts) — Caddy proxies that to the Go backend.
-FROM oven/bun:1 AS build
-WORKDIR /app
-COPY package.json bun.lock* ./
-RUN bun install
-COPY . .
-RUN bun run build
-
-# ── Serve static files + terminate TLS with Caddy ──
+# ── Serve prebuilt static files + terminate TLS with Caddy ──
+# The React build now runs in GitHub Actions (.github/workflows/deploy.yml) and the
+# finished dist/ is rsync-ed to the server — building vite on the small VPS exhausted
+# its RAM and froze the box (incident 2026-07-16). No VITE_API_URL is baked in, so the
+# client falls back to same-origin `/api/v1` (src/lib/api/config.ts) — Caddy proxies
+# that to the Go backend.
+#
+# Manual deploy without Actions: run `bun run build` first so dist/ exists.
 FROM caddy:2-alpine
 COPY Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/dist /srv
+COPY dist /srv
 EXPOSE 80 443

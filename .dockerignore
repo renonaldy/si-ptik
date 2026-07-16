@@ -1,5 +1,6 @@
 node_modules
-dist
+# NOTE: `dist` sengaja TIDAK di-ignore — Dockerfile.web menyalin dist/ hasil build
+# GitHub Actions langsung ke image Caddy (build vite tidak lagi dilakukan di VPS).
 .git
 .env
 .env.*
