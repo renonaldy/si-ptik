@@ -14,6 +14,7 @@ import {
   Newspaper,
   Image as ImageIcon,
   Megaphone,
+  Trophy,
   Download as DownloadIcon,
   Inbox,
   Settings,
@@ -50,6 +51,7 @@ export type MenuKey =
   | "berita"
   | "galeri"
   | "promosi"
+  | "challenge"
   | "download"
   | "kurikulum"
   | "beranda"
@@ -143,6 +145,7 @@ export const MENU: MenuSection[] = [
       { key: "berita", label: "Berita", icon: Newspaper, path: "/kelola/berita", crud: true },
       { key: "galeri", label: "Galeri", icon: ImageIcon, path: "/kelola/galeri", crud: true },
       { key: "promosi", label: "Promosi", icon: Megaphone, path: "/kelola/promosi", crud: true },
+      { key: "challenge", label: "Challenge", icon: Trophy, path: "/kelola/challenge", crud: true },
       { key: "download", label: "Download", icon: DownloadIcon, path: "/kelola/download", crud: true },
       { key: "kurikulum", label: "Kurikulum", icon: BookMarked, path: "/kelola/kurikulum" },
       { key: "beranda", label: "Testimoni & FAQ", icon: MessagesSquare, path: "/kelola/beranda" },

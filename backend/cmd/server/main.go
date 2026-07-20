@@ -16,6 +16,7 @@ import (
 	"ptik/internal/domain/alumni"
 	"ptik/internal/domain/auth"
 	"ptik/internal/domain/berita"
+	"ptik/internal/domain/challenge"
 	"ptik/internal/domain/content"
 	"ptik/internal/domain/dosen"
 	"ptik/internal/domain/download"
@@ -98,6 +99,7 @@ func main() {
 	beritaRepo := pgRepo.NewBeritaRepository(pool)
 	galeriRepo := pgRepo.NewGaleriRepository(pool)
 	promosiRepo := pgRepo.NewPromosiRepository(pool)
+	challengeRepo := pgRepo.NewChallengeRepository(pool)
 	downloadRepo := pgRepo.NewDownloadRepository(pool)
 	pendaftaranRepo := pgRepo.NewPendaftaranRepository(pool)
 	contentRepo := pgRepo.NewContentRepository(pool)
@@ -123,6 +125,7 @@ func main() {
 	beritaSvc := berita.NewService(beritaRepo)
 	galeriSvc := galeri.NewService(galeriRepo)
 	promosiSvc := promosi.NewService(promosiRepo)
+	challengeSvc := challenge.NewService(challengeRepo)
 	downloadSvc := download.NewService(downloadRepo)
 	pendaftaranSvc := pendaftaran.NewService(pendaftaranRepo)
 	contentSvc := content.NewService(contentRepo)
@@ -146,6 +149,7 @@ func main() {
 	beritaHandler := handler.NewBeritaHandler(beritaSvc)
 	galeriHandler := handler.NewGaleriHandler(galeriSvc)
 	promosiHandler := handler.NewPromosiHandler(promosiSvc)
+	challengeHandler := handler.NewChallengeHandler(challengeSvc)
 	downloadHandler := handler.NewDownloadHandler(downloadSvc)
 	pendaftaranHandler := handler.NewPendaftaranHandler(pendaftaranSvc)
 	contentHandler := handler.NewContentHandler(contentSvc)
@@ -189,6 +193,8 @@ func main() {
 			r.Get("/berita/{id}", beritaHandler.Get)
 			r.Get("/galeri", galeriHandler.List)
 			r.Get("/promosi", promosiHandler.List)
+			r.Get("/challenge", challengeHandler.List)
+			r.Get("/challenge/{id}", challengeHandler.Get)
 			r.Get("/dosen", dosenHandler.PublicList)
 			r.Get("/download", downloadHandler.List)
 			r.Get("/content", contentHandler.List)
@@ -232,6 +238,7 @@ func main() {
 			r.Route("/berita", beritaHandler.Routes)
 			r.Route("/galeri", galeriHandler.Routes)
 			r.Route("/promosi", promosiHandler.Routes)
+			r.Route("/challenge", challengeHandler.Routes)
 			r.Route("/download", downloadHandler.Routes)
 			r.Route("/pendaftaran", pendaftaranHandler.Routes)
 			r.Route("/content", contentHandler.Routes)

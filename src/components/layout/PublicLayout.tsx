@@ -57,6 +57,7 @@ const NAV: NavEntry[] = [
       { label: "Kurikulum OBE", to: "/kurikulum-obe" },
       { label: "Kewirausahaan", to: "https://kewirausahaanptik.my.id/", external: true },
       { label: "Hattatik", to: "https://hattatik.com/", external: true },
+      { label: "Challenge", to: "/challenge" },
     ],
   },
   {
