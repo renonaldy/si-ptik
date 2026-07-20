@@ -2,6 +2,7 @@ import { api } from "./client";
 import type { Berita } from "./beritaApi";
 import type { Galeri } from "./galeriApi";
 import type { Promosi, PromosiTipe } from "./promosiApi";
+import type { Challenge, ChallengeStatus } from "./challengeApi";
 import type { Download } from "./downloadApi";
 import type { SiteContent } from "./contentApi";
 import type { Ujian } from "./ujianApi";
@@ -24,6 +25,10 @@ export const getBeritaPublic = (id: string) => api.get<Berita>(`/public/berita/$
 export const listGaleriPublic = () => api.get<Galeri[]>("/public/galeri");
 export const listPromosiPublic = (tipe?: PromosiTipe) =>
   api.get<Promosi[]>(`/public/promosi${tipe ? `?tipe=${tipe}` : ""}`);
+export const listChallengePublic = (status?: ChallengeStatus | "") =>
+  api.get<Challenge[]>(`/public/challenge${status ? `?status=${status}` : ""}`);
+export const getChallengePublic = (id: string) =>
+  api.get<Challenge>(`/public/challenge/${encodeURIComponent(id)}`);
 export const listDownloadPublic = () => api.get<Download[]>("/public/download");
 export const listContentPublic = () => api.get<SiteContent[]>("/public/content");
 export const listUjianPublic = () => api.get<Ujian[]>("/public/ujian");
