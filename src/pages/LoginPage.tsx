@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { GraduationCap, ShieldCheck, Sparkles } from "lucide-react";
@@ -28,11 +28,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const login = useLogin();
+  const hasToken = !!getStoredToken();
 
-  if (getStoredToken()) {
-    navigate("/dashboard", { replace: true });
-    return null;
-  }
+  // Redirect must happen after render — calling navigate() directly in the
+  // render body updates the Router while LoginPage itself is still rendering,
+  // which React can drop or leave half-applied and paint a blank screen.
+  useEffect(() => {
+    if (hasToken) navigate("/dashboard", { replace: true });
+  }, [hasToken, navigate]);
+
+  if (hasToken) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

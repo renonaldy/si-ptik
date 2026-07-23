@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 import { listBeritaPublic, listGaleriPublic } from "@/lib/api/publicApi";
 import { useSiteContent } from "@/features/content/useSiteContent";
 import { parseTestimonials, parseFaqs, type Testimonial } from "@/lib/homeContent";
+import { stripHtml } from "@/lib/sanitizeHtml";
 
 /* ─────────────────────────── Intro video ─────────────────────────── */
 
@@ -595,7 +596,7 @@ export default function HomePage() {
                       <CalendarDays className="h-3.5 w-3.5" /> {b.tanggal || "—"}
                     </div>
                     <h3 className="mt-2 line-clamp-2 font-semibold text-foreground group-hover:text-primary">{b.judul}</h3>
-                    <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{b.ringkasan}</p>
+                    <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{b.ringkasan ? stripHtml(b.ringkasan) : ""}</p>
                   </div>
                 </Link>
               ))}
