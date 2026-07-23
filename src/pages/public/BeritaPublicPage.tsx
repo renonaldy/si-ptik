@@ -6,6 +6,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PublicPageHeader } from "@/components/layout/PublicPageHeader";
 import type { Berita } from "@/lib/api/beritaApi";
 import { listBeritaPublic } from "@/lib/api/publicApi";
+import { stripHtml } from "@/lib/sanitizeHtml";
 
 function BeritaThumb({ b, className }: { b: Berita; className?: string }) {
   if (b.gambar) {
@@ -56,7 +57,7 @@ export default function BeritaPublicPage() {
                 <h2 className="mt-2 font-display text-2xl font-medium leading-tight tracking-[-0.01em] text-foreground group-hover:text-primary">
                   {featured.judul}
                 </h2>
-                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{featured.ringkasan}</p>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{stripHtml(featured.ringkasan)}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
                   Baca selengkapnya <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
@@ -80,7 +81,7 @@ export default function BeritaPublicPage() {
                         <CalendarDays className="h-3.5 w-3.5" /> {b.tanggal || "—"}
                       </div>
                       <h3 className="mt-2 line-clamp-2 font-semibold text-foreground group-hover:text-primary">{b.judul}</h3>
-                      <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{b.ringkasan}</p>
+                      <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{stripHtml(b.ringkasan)}</p>
                     </div>
                   </Link>
                 ))}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Newspaper } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,12 @@ interface BeritaFormDialogProps {
 }
 
 const EMPTY: BeritaInput = { judul: "", penulis: "", tanggal: "", ringkasan: "", konten: "", gambar: "" };
+
+// Tiptap is sizable — split it out of the main bundle since only the berita admin form needs it.
+const RichTextEditor = lazy(() =>
+  import("@/components/shared/RichTextEditor").then((m) => ({ default: m.RichTextEditor })),
+);
+const RICH_TEXT_FALLBACK = <div className="h-[142px] animate-pulse rounded-lg border border-input bg-muted/30" />;
 
 function toInput(x: Berita): BeritaInput {
   const { id, created_at, updated_at, ...rest } = x;
@@ -91,7 +97,13 @@ export function BeritaFormDialog({ open, onOpenChange, initial, onSubmit, isPend
             {field("tanggal", "Tanggal", { type: "date" })}
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="ringkasan">Ringkasan</Label>
-              <Textarea id="ringkasan" value={form.ringkasan} onChange={(e) => setForm((f) => ({ ...f, ringkasan: e.target.value }))} />
+              <Suspense fallback={RICH_TEXT_FALLBACK}>
+                <RichTextEditor
+                  value={form.ringkasan}
+                  onChange={(html) => setForm((f) => ({ ...f, ringkasan: html }))}
+                  placeholder="Ringkasan singkat berita…"
+                />
+              </Suspense>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="konten">Konten</Label>

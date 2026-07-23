@@ -5,6 +5,7 @@ import { ArrowLeft, CalendarDays, User } from "lucide-react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { getBeritaPublic } from "@/lib/api/publicApi";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
 export default function BeritaDetailPage() {
   const { id = "" } = useParams();
@@ -31,7 +32,7 @@ export default function BeritaDetailPage() {
           </div>
         ) : (
           <article>
-            <h1 className="font-display text-3xl font-medium leading-tight tracking-[-0.02em] text-foreground">{b.judul}</h1>
+            <h1 className="text-justify font-display text-3xl font-medium leading-tight tracking-[-0.02em] text-foreground">{b.judul}</h1>
             <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {b.tanggal || "—"}</span>
               {b.penulis && <span className="flex items-center gap-1.5"><User className="h-4 w-4" /> {b.penulis}</span>}
@@ -39,8 +40,13 @@ export default function BeritaDetailPage() {
             {b.gambar && (
               <img src={b.gambar} alt={b.judul} className="mt-6 aspect-video w-full rounded-2xl border border-border object-cover" />
             )}
-            {b.ringkasan && <p className="mt-6 text-lg font-medium leading-relaxed text-foreground">{b.ringkasan}</p>}
-            <div className="mt-4 whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">{b.konten}</div>
+            {b.ringkasan && (
+              <div
+                className="mt-6 text-justify text-lg font-medium leading-relaxed text-foreground [&_a]:text-primary [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(b.ringkasan) }}
+              />
+            )}
+            <div className="mt-4 whitespace-pre-line text-justify text-[15px] leading-relaxed text-muted-foreground">{b.konten}</div>
           </article>
         )}
       </div>
