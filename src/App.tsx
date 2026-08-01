@@ -60,6 +60,7 @@ import KontenBerandaPage from "./pages/beranda/KontenBerandaPage";
 import PengaturanSitusPage from "./pages/pengaturan/PengaturanSitusPage";
 import PenggunaPage from "./pages/pengguna/PenggunaPage";
 import AksesMenuPage from "./pages/akses/AksesMenuPage";
+import NavMenuPage from "./pages/navMenu/NavMenuPage";
 import UjianPage from "./pages/ujian/UjianPage";
 // Kurikulum OBE module
 import ObeDashboardPage from "./pages/obe/ObeDashboardPage";
@@ -174,6 +175,7 @@ const App = () => {
                 <Route path="/kelola/beranda" element={<RouteAccess menu="beranda"><KontenBerandaPage /></RouteAccess>} />
                 <Route path="/kelola/pengguna" element={<RouteAccess adminOnly><PenggunaPage /></RouteAccess>} />
                 <Route path="/kelola/akses" element={<RouteAccess adminOnly><AksesMenuPage /></RouteAccess>} />
+                <Route path="/kelola/navigasi" element={<RouteAccess adminOnly><NavMenuPage /></RouteAccess>} />
                 <Route path="/kelola/pengaturan" element={<RouteAccess adminOnly><PengaturanSitusPage /></RouteAccess>} />
               </Route>
 

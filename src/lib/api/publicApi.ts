@@ -6,6 +6,7 @@ import type { Challenge, ChallengeStatus } from "./challengeApi";
 import type { Download } from "./downloadApi";
 import type { SiteContent } from "./contentApi";
 import type { Ujian } from "./ujianApi";
+import type { NavMenuItem } from "./navMenuApi";
 
 // Public (no-auth) view of a lecturer — sensitive fields (NIK/HP/sertifikasi) omitted by the API.
 export interface DosenPublic {
@@ -31,6 +32,7 @@ export const getChallengePublic = (id: string) =>
   api.get<Challenge>(`/public/challenge/${encodeURIComponent(id)}`);
 export const listDownloadPublic = () => api.get<Download[]>("/public/download");
 export const listContentPublic = () => api.get<SiteContent[]>("/public/content");
+export const listNavMenuPublic = () => api.get<NavMenuItem[]>("/public/nav-menu");
 export const listUjianPublic = () => api.get<Ujian[]>("/public/ujian");
 export const getUjianPublic = (id: string) => api.get<Ujian>(`/public/ujian/${encodeURIComponent(id)}`);
 

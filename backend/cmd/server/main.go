@@ -23,6 +23,7 @@ import (
 	"ptik/internal/domain/galeri"
 	"ptik/internal/domain/menuaccess"
 	"ptik/internal/domain/microsoft"
+	"ptik/internal/domain/navmenu"
 	"ptik/internal/domain/obe"
 	"ptik/internal/domain/pendaftaran"
 	"ptik/internal/domain/penelitian"
@@ -105,6 +106,7 @@ func main() {
 	contentRepo := pgRepo.NewContentRepository(pool)
 	ujianRepo := pgRepo.NewUjianRepository(pool)
 	menuAccessRepo := pgRepo.NewMenuAccessRepository(pool)
+	navMenuRepo := pgRepo.NewNavMenuRepository(pool)
 	obeRepo := pgRepo.NewOBERepository(pool)
 	obeAssessRepo := pgRepo.NewOBEAssessmentRepository(pool)
 
@@ -130,6 +132,7 @@ func main() {
 	pendaftaranSvc := pendaftaran.NewService(pendaftaranRepo)
 	contentSvc := content.NewService(contentRepo)
 	menuAccessSvc := menuaccess.NewService(menuAccessRepo, userRepo)
+	navMenuSvc := navmenu.NewService(navMenuRepo)
 	obeSvc := obe.NewService(obeRepo)
 	obeAssessSvc := obe.NewAssessmentService(obeAssessRepo, obeRepo)
 
@@ -155,6 +158,7 @@ func main() {
 	contentHandler := handler.NewContentHandler(contentSvc)
 	ujianHandler := handler.NewUjianHandler(ujianSvc)
 	menuAccessHandler := handler.NewMenuAccessHandler(menuAccessSvc)
+	navMenuHandler := handler.NewNavMenuHandler(navMenuSvc)
 	obeHandler := handler.NewOBEHandler(obeSvc)
 	obeAssessHandler := handler.NewOBEAssessmentHandler(obeAssessSvc)
 	uploadHandler := handler.NewUploadHandler(cfg.UploadDir, cfg.PublicBaseURL)
@@ -198,6 +202,7 @@ func main() {
 			r.Get("/dosen", dosenHandler.PublicList)
 			r.Get("/download", downloadHandler.List)
 			r.Get("/content", contentHandler.List)
+			r.Get("/nav-menu", navMenuHandler.List)
 			r.Get("/ujian", ujianHandler.List)
 			r.Get("/ujian/{id}", ujianHandler.Get)
 			r.Post("/pendaftaran", pendaftaranHandler.Create)          // Daftar / Kontak forms
@@ -242,6 +247,7 @@ func main() {
 			r.Route("/download", downloadHandler.Routes)
 			r.Route("/pendaftaran", pendaftaranHandler.Routes)
 			r.Route("/content", contentHandler.Routes)
+			r.Route("/nav-menu", navMenuHandler.Routes)
 			r.Route("/ujian", ujianHandler.Routes)
 			r.Route("/menu-access", menuAccessHandler.Routes)
 			// OBE core + assessment share the /obe prefix (one "obe" CRUDGuard key);
