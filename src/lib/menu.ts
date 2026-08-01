@@ -29,6 +29,7 @@ import {
   Crosshair,
   ClipboardCheck as AssessmentIcon,
   TrendingUp,
+  Navigation,
   type LucideIcon,
 } from "lucide-react";
 
@@ -59,6 +60,7 @@ export type MenuKey =
   | "pengaturan"
   | "pengguna"
   | "akses"
+  | "navigasi"
   | "obe"
   | "obe-kurikulum"
   | "obe-cpl"
@@ -157,6 +159,7 @@ export const MENU: MenuSection[] = [
     items: [
       { key: "pengguna", label: "Manajemen Pengguna", icon: UserCog, path: "/kelola/pengguna", adminOnly: true },
       { key: "akses", label: "Hak Akses Menu", icon: ShieldCheck, path: "/kelola/akses", adminOnly: true },
+      { key: "navigasi", label: "Menu Navigasi", icon: Navigation, path: "/kelola/navigasi", adminOnly: true },
       { key: "pengaturan", label: "Pengaturan Situs", icon: Settings, path: "/kelola/pengaturan", adminOnly: true },
     ],
   },

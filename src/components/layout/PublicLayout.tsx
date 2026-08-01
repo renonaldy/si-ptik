@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { loadTheme, toggleTheme, type Theme } from "@/lib/theme";
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { usePublicNavMenu, type NavEntry, type NavLeaf } from "@/features/navMenu/usePublicNavMenu";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +14,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-type NavLeaf = { label: string; to: string; external?: boolean };
-type NavEntry =
-  | { type: "link"; label: string; to: string }
-  | { type: "dropdown"; label: string; base: string; items: NavLeaf[] };
-
-// "Tentang" & "Akademik" are dropdowns; each item is its own page.
-const NAV: NavEntry[] = [
+// Fallback used until the admin-managed navbar (`/kelola/navigasi`) loads, or
+// if it's ever empty — "Tentang" & "Akademik" are dropdowns; each item is its
+// own page.
+const DEFAULT_NAV: NavEntry[] = [
   { type: "link", label: "Beranda", to: "/" },
   {
     type: "dropdown",
@@ -104,7 +102,7 @@ function ThemeToggle() {
 }
 
 // Centered pill navigation (template's signature nav).
-function DesktopNav({ onExternal }: { onExternal: (leaf: NavLeaf) => void }) {
+function DesktopNav({ nav, onExternal }: { nav: NavEntry[]; onExternal: (leaf: NavLeaf) => void }) {
   const { pathname } = useLocation();
   const [openKey, setOpenKey] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -121,7 +119,7 @@ function DesktopNav({ onExternal }: { onExternal: (leaf: NavLeaf) => void }) {
 
   return (
     <nav className="hidden max-h-fit items-center rounded-full border border-border bg-muted/60 p-1 lg:flex">
-      {NAV.map((item) =>
+      {nav.map((item) =>
         item.type === "link" ? (
           <NavLink
             key={item.to}
@@ -236,6 +234,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [pendingExternal, setPendingExternal] = useState<NavLeaf | null>(null);
   const { pathname } = useLocation();
+  const { nav } = usePublicNavMenu(DEFAULT_NAV);
   useEffect(() => setOpen(false), [pathname]);
 
   const onSubscribe = (e: React.FormEvent) => {
@@ -253,7 +252,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <Brand />
           </div>
 
-          <DesktopNav onExternal={setPendingExternal} />
+          <DesktopNav nav={nav} onExternal={setPendingExternal} />
 
           <div className="flex items-center justify-self-end gap-2 sm:gap-3">
             <ThemeToggle />
@@ -278,7 +277,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             {/* max-h + overflow so long menus scroll inside the sticky header instead of
                 overflowing past the viewport (bottom items were unreachable on phones). */}
             <nav className="mx-auto flex max-h-[calc(100dvh-3.75rem)] max-w-6xl flex-col gap-0.5 overflow-y-auto overscroll-contain scrollbar-thin px-4 py-3">
-              {NAV.map((n) =>
+              {nav.map((n) =>
                 n.type === "link" ? (
                   <NavLink
                     key={n.to}
